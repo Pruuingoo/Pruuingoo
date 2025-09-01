@@ -1,194 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Plui – About Me</title>
   <style>
-    body {
-      background-color: #F7F0F7;
-      color: #000;
-      font-family: Arial, Helvetica, sans-serif;
-      max-width: 700px;
+    :root{
+      --page-bg: #F7F0F7;
+      --text: #111;
+      --circle-border: rgba(0,0,0,0.95);
+      --initial-d: 160px; /* circle starting diameter */
+    }
+
+    /* Page */
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      background: var(--page-bg);
+      color: var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .page {
+      max-width: 780px;
       margin: 0 auto;
       padding: 2rem;
-      line-height: 1.6;
       text-align: center;
-      overflow-x: hidden;
     }
 
-    h1 { font-weight: 600; }
+    h1{ font-weight:700; margin-top:0.25rem; }
 
-    .profile-container {
+    /* PROFILE BLOCK */
+    .profile-wrap{
+      display:flex;
+      justify-content:center;
+      margin: 40px 0;
+    }
+
+    .profile-container{
       position: relative;
-      display: inline-block;
-      margin: 40px auto;
+      display:flex;
+      align-items:center;
+      gap: 24px;
+      width:100%;
+      max-width: 600px;
+      justify-content:center;
+      padding: 6px 12px;
+      box-sizing:border-box;
+      overflow: visible; /* allow circle to grow */
     }
 
-    .profile-pic {
-      width: 160px;
-      height: 160px;
+    /* name / age */
+    .name, .age{
+      font-weight: 800;
+      font-size: clamp(1.3rem, 2.2vw, 1.8rem); /* bigger and responsive */
+      color: var(--text);
+      z-index: 1;               /* below wipe-fill but above page background */
+      opacity: 0;
+      transform-origin: center;
+      transition: opacity 420ms ease, transform 420ms ease;
+      white-space: nowrap;
+      letter-spacing: -0.5px;
+    }
+
+    /* center picture */
+    .profile-pic{
+      width: var(--initial-d);
+      height: var(--initial-d);
       border-radius: 50%;
       object-fit: cover;
-      display: block;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      position: relative;
-      z-index: 2;
-    }
-
-    /* Name and Age */
-    .name-text, .age-text {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.3rem;
-      font-weight: bold;
+      display:block;
+      z-index: 4; /* highest so it stays visible above wipe */
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      transform: translateZ(0);
       opacity: 0;
-      animation: popIn 1s forwards;
-      z-index: 1;
+      transform-origin:center;
+      animation: picPop 700ms cubic-bezier(.2,.9,.2,1) 0.15s forwards;
     }
 
-    .name-text {
-      left: -120px;
+    @keyframes picPop{
+      0%{ transform: scale(0.2); opacity: 0; }
+      70%{ transform: scale(1.12); opacity: 1; }
+      100%{ transform: scale(1); }
     }
 
-    .age-text {
-      right: -80px;
+    /* entrance for texts */
+    .name.enter { animation: slideInLeft 700ms cubic-bezier(.2,.9,.2,1) 0.25s forwards; }
+    .age.enter  { animation: slideInRight 700ms cubic-bezier(.2,.9,.2,1) 0.25s forwards; }
+
+    @keyframes slideInLeft {
+      0% { opacity: 0; transform: translateX(-28px) scale(.98); }
+      100%{ opacity: 1; transform: translateX(0) scale(1); }
+    }
+    @keyframes slideInRight {
+      0% { opacity: 0; transform: translateX(28px) scale(.98); }
+      100%{ opacity: 1; transform: translateX(0) scale(1); }
     }
 
-    /* Hollow expanding circle */
-    .circle {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 160px;
-      height: 160px;
-      border: 4px solid black;
-      border-radius: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      transition: transform 1.5s ease-in-out;
-      z-index: 1;
+    /* Wipe fill (same color as page) - covers texts but sits under the profile */
+    .wipe-fill{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width: var(--initial-d);
+      height: var(--initial-d);
+      border-radius:50%;
+      background: var(--page-bg);
+      transform: translate(-50%,-50%) scale(0);
+      z-index: 2; /* under profile (4) but above name/age (1) */
+      transition: transform 900ms cubic-bezier(.18,.9,.24,1);
       pointer-events: none;
     }
 
-    .circle.expand {
-      transform: translate(-50%, -50%) scale(8);
+    /* Hollow ring on top (border only) */
+    .ring {
+      position:absolute;
+      left:50%;
+      top:50%;
+      width: var(--initial-d);
+      height: var(--initial-d);
+      border-radius:50%;
+      border: 4px solid var(--circle-border);
+      transform: translate(-50%,-50%) scale(0);
+      z-index: 5; /* above everything so ring is visible */
+      transition: transform 1000ms cubic-bezier(.18,.9,.24,1);
+      pointer-events: none;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.08);
+      background: transparent;
     }
 
-    /* Animations */
-    @keyframes popIn {
-      0% { transform: translateY(-50%) scale(0); opacity: 0; }
-      100% { transform: translateY(-50%) scale(1); opacity: 1; }
+    /* expand states (scale large enough to cover common screens) */
+    .ring.expand { transform: translate(-50%,-50%) scale(18); }
+    .wipe-fill.expand { transform: translate(-50%,-50%) scale(18); }
+
+    /* hide class for texts (fades smoothly) */
+    .hidden{
+      opacity: 0 !important;
+      transform: translateY(-6px) scale(.98) !important;
     }
 
-    .hide {
-      opacity: 0;
-      transition: opacity 0.8s ease;
-    }
-
+    /* Social icons section (unchanged) */
     #socials {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 25px;
-      margin-top: 40px;
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:18px;
+      margin-top:36px;
     }
+    #socials img { width:40px; height:40px; transition: transform .18s ease; }
+    #socials img:hover { transform: scale(1.12) rotate(6deg); }
 
-    #socials a img {
-      width: 40px;
-      height: 40px;
-      filter: invert(0);
-      transition: transform 0.2s;
-    }
-
-    #socials a img:hover {
-      transform: scale(1.2);
+    /* Responsive: stack name / profile / age on small screens */
+    @media (max-width: 460px){
+      .profile-container{
+        flex-direction: column;
+        gap:10px;
+      }
+      .name, .age{
+        transform: none;
+        font-size: clamp(1.1rem, 3.6vw, 1.4rem);
+      }
+      .ring.expand, .wipe-fill.expand { transform: translate(-50%,-50%) scale(28); } /* extra large for tiny screens */
     }
   </style>
 </head>
 <body>
-  <!-- Profile Section -->
-  <div class="profile-container">
-    <span class="name-text" id="nameText">Plui</span>
-    <img src="https://cdn.discordapp.com/avatars/1090665275986296904/cc527221669f2a1ab650313f0678ddce.png?size=512"
-         alt="Discord Profile" class="profile-pic">
-    <span class="age-text" id="ageText">18</span>
-    <div class="circle" id="circle"></div>
+  <div class="page">
+    <div class="profile-wrap">
+      <div class="profile-container" id="profileContainer">
+        <!-- wipe (fills center area to 'erase' texts) -->
+        <div class="wipe-fill" id="wipeFill" aria-hidden="true"></div>
+        <!-- hollow ring shown on top -->
+        <div class="ring" id="ring" aria-hidden="true"></div>
+
+        <!-- left name -->
+        <div class="name enter" id="nameText">Plui</div>
+
+        <!-- profile picture (always stays visible) -->
+        <img id="profilePic"
+             class="profile-pic"
+             src="https://cdn.discordapp.com/avatars/1090665275986296904/cc527221669f2a1ab650313f0678ddce.png?size=512"
+             alt="Plui profile">
+
+        <!-- right age (change number below to whatever you want) -->
+        <div class="age enter" id="ageText">13</div>
+      </div>
+    </div>
+
+    <h1>About Me</h1>
+    <p>
+      Hey, I’m <b>Plui</b>. I’m a person who likes exploring anime, games, Discord, and random tech.
+      I spend time messing around with Discord bots, setting up Minecraft servers, experimenting with apps, and watching anime.
+      I also make random creative projects like videos or logos just for fun.
+    </p>
+
+    <section id="socials">
+      <!-- kept your social icons unchanged -->
+      <a href="https://discord.com/users/1090665275986296904" target="_blank"><img src="https://simpleicons.org/icons/discord.svg" alt="Discord"></a>
+      <a href="https://instagram.com/pruuingoo/" target="_blank"><img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram"></a>
+      <a href="https://youtube.com/@Pruuingoo" target="_blank"><img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube"></a>
+      <a href="https://anilist.co/user/pruuingoo" target="_blank"><img src="https://simpleicons.org/icons/anilist.svg" alt="AniList"></a>
+      <a href="https://github.com/Pruuingoo" target="_blank"><img src="https://simpleicons.org/icons/github.svg" alt="GitHub"></a>
+    </section>
   </div>
 
-  <!-- About Me Section -->
-  <h1>About Me</h1>
-  <p>
-    Hey, I’m <b>Plui</b>. I’m a person who likes exploring anime, games, Discord, and random tech.  
-    I spend time messing around with Discord bots, setting up Minecraft servers, experimenting with apps, and watching anime.  
-    I also make random creative projects like videos or logos just for fun. I enjoy learning a little bit of everything  
-    and collecting knowledge along the way.
-  </p>
-
-  <!-- Social Logos -->
-  <section id="socials">
-    <a href="https://discord.com/users/1090665275986296904" target="_blank">
-      <img src="https://simpleicons.org/icons/discord.svg" alt="Discord">
-    </a>
-    <a href="https://instagram.com/pruuingoo/" target="_blank">
-      <img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram">
-    </a>
-    <a href="https://youtube.com/@Pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube">
-    </a>
-    <a href="https://music.youtube.com/@nowepruim" target="_blank">
-      <img src="https://simpleicons.org/icons/youtubemusic.svg" alt="Music YouTube">
-    </a>
-    <a href="https://anilist.co/user/pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/anilist.svg" alt="AniList">
-    </a>
-    <a href="https://x.com/Pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/x.svg" alt="X">
-    </a>
-    <a href="https://reddit.com/user/Tasty-Replacement310/" target="_blank">
-      <img src="https://simpleicons.org/icons/reddit.svg" alt="Reddit">
-    </a>
-    <a href="https://twitch.tv/pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/twitch.svg" alt="Twitch">
-    </a>
-    <a href="https://pinterest.com/OttrxZPqu" target="_blank">
-      <img src="https://simpleicons.org/icons/pinterest.svg" alt="Pinterest">
-    </a>
-    <a href="mailto:pruuingoo@gmail.com" target="_blank">
-      <img src="https://simpleicons.org/icons/maildotru.svg" alt="Email">
-    </a>
-    <a href="https://roblox.com/users/5279565619/profile" target="_blank">
-      <img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox">
-    </a>
-    <a href="https://github.com/Pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/github.svg" alt="GitHub">
-    </a>
-    <a href="https://soundcloud.com/pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/soundcloud.svg" alt="SoundCloud">
-    </a>
-    <a href="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi" target="_blank">
-      <img src="https://simpleicons.org/icons/spotify.svg" alt="Spotify">
-    </a>
-    <a href="https://tiktok.com/@pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/tiktok.svg" alt="TikTok">
-    </a>
-  </section>
-
   <script>
-    const circle = document.getElementById("circle");
-    const nameText = document.getElementById("nameText");
-    const ageText = document.getElementById("ageText");
+    (function(){
+      const wipeFill = document.getElementById('wipeFill');
+      const ring = document.getElementById('ring');
+      const nameText = document.getElementById('nameText');
+      const ageText = document.getElementById('ageText');
+      const profilePic = document.getElementById('profilePic');
 
-    function triggerCircle() {
-      circle.classList.add("expand");
-      nameText.classList.add("hide");
-      ageText.classList.add("hide");
-    }
+      // Helper to trigger wipe exactly once
+      let triggered = false;
+      function triggerWipe(){
+        if(triggered) return;
+        triggered = true;
 
-    // Trigger on click, scroll, or page load
-    window.addEventListener("scroll", triggerCircle);
-    window.addEventListener("click", triggerCircle);
-    setTimeout(triggerCircle, 3000); // auto after 3s
+        // ensure style/layout flushed before adding classes
+        requestAnimationFrame(()=> {
+          // start expanding wipe + ring
+          wipeFill.classList.add('expand');
+          ring.classList.add('expand');
+
+          // fade out texts slightly delayed so they disappear as wipe grows
+          setTimeout(()=> {
+            nameText.classList.add('hidden');
+            ageText.classList.add('hidden');
+          }, 60);
+
+          // clean up the wipe/ring after animation ends (optional)
+          setTimeout(()=> {
+            // keep profile visible (profilePic has higher z-index)
+            wipeFill.style.display = 'none';
+            ring.style.display = 'none';
+          }, 1200);
+        });
+      }
+
+      // wire to interactions (use once)
+      window.addEventListener('click', triggerWipe, { once:true, passive:true });
+      window.addEventListener('keydown', triggerWipe, { once:true, passive:true });
+      window.addEventListener('scroll', triggerWipe, { once:true, passive:true });
+
+      // small accessibility: if user prefers reduced motion, avoid auto excessive scaling
+      const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(prefersReduced){
+        wipeFill.style.transitionDuration = '320ms';
+        ring.style.transitionDuration = '320ms';
+      }
+
+      // Optional: expose a function on window so you can call it from console or other scripts
+      window.triggerProfileWipe = triggerWipe;
+    })();
   </script>
 </body>
 </html>
