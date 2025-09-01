@@ -21,12 +21,8 @@
 
     .profile-container {
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      margin: 20px auto 40px auto;
-      z-index: 10;
+      display: inline-block;
+      margin: 40px auto;
     }
 
     .profile-pic {
@@ -34,75 +30,60 @@
       height: 160px;
       border-radius: 50%;
       object-fit: cover;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-      transform: scale(0);
-      animation: popIn 1s ease-out forwards;
+      display: block;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 2;
     }
 
-    @keyframes popIn {
-      0% { transform: scale(0); opacity: 0; }
-      80% { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(1); }
-    }
-
+    /* Name and Age */
     .name-text, .age-text {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
       font-size: 1.3rem;
       font-weight: bold;
       opacity: 0;
+      animation: popIn 1s forwards;
+      z-index: 1;
     }
 
     .name-text {
-      animation: slideLeft 1s ease-out forwards;
-      animation-delay: 0.7s;
+      left: -120px;
     }
 
     .age-text {
-      animation: slideRight 1s ease-out forwards;
-      animation-delay: 0.7s;
+      right: -80px;
     }
 
-    @keyframes slideLeft {
-      from { opacity: 0; transform: translateX(-40px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    @keyframes slideRight {
-      from { opacity: 0; transform: translateX(40px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* Circle overlay wipe */
+    /* Hollow expanding circle */
     .circle {
       position: absolute;
       top: 50%;
       left: 50%;
       width: 160px;
       height: 160px;
+      border: 4px solid black;
       border-radius: 50%;
-      background: #000; /* dark wipe */
-      transform: translate(-50%, -50%) scale(1);
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 1.5s ease-in-out;
+      z-index: 1;
       pointer-events: none;
+    }
+
+    .circle.expand {
+      transform: translate(-50%, -50%) scale(8);
+    }
+
+    /* Animations */
+    @keyframes popIn {
+      0% { transform: translateY(-50%) scale(0); opacity: 0; }
+      100% { transform: translateY(-50%) scale(1); opacity: 1; }
+    }
+
+    .hide {
       opacity: 0;
-      z-index: 20;
-    }
-
-    .circle.active {
-      animation: circleWipe 1.5s ease forwards;
-    }
-
-    @keyframes circleWipe {
-      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(15); opacity: 1; }
-    }
-
-    /* Fade profile content when wiped */
-    .fade-out {
-      animation: fadeAway 0.8s ease forwards;
-    }
-
-    @keyframes fadeAway {
-      from { opacity: 1; }
-      to { opacity: 0; }
+      transition: opacity 0.8s ease;
     }
 
     #socials {
@@ -116,22 +97,22 @@
     #socials a img {
       width: 40px;
       height: 40px;
-      filter: invert(0); /* pure black icons */
+      filter: invert(0);
       transition: transform 0.2s;
     }
 
     #socials a img:hover {
-      transform: scale(1.2) rotate(5deg);
+      transform: scale(1.2);
     }
   </style>
 </head>
 <body>
   <!-- Profile Section -->
-  <div class="profile-container" id="profileContainer">
-    <div class="name-text" id="nameText">Plui</div>
+  <div class="profile-container">
+    <span class="name-text" id="nameText">Plui</span>
     <img src="https://cdn.discordapp.com/avatars/1090665275986296904/cc527221669f2a1ab650313f0678ddce.png?size=512"
-         alt="Discord Profile" class="profile-pic" id="profilePic">
-    <div class="age-text" id="ageText">13</div>
+         alt="Discord Profile" class="profile-pic">
+    <span class="age-text" id="ageText">18</span>
     <div class="circle" id="circle"></div>
   </div>
 
@@ -194,30 +175,20 @@
   </section>
 
   <script>
-    const profilePic = document.getElementById("profilePic");
+    const circle = document.getElementById("circle");
     const nameText = document.getElementById("nameText");
     const ageText = document.getElementById("ageText");
-    const profileContainer = document.getElementById("profileContainer");
-    const circle = document.getElementById("circle");
 
-    function triggerWipe() {
-      // Fade out profile + text
-      profilePic.classList.add("fade-out");
-      nameText.classList.add("fade-out");
-      ageText.classList.add("fade-out");
-      // Expand circle to wipe them away
-      circle.classList.add("active");
-
-      // Remove container after animation to clean up
-      setTimeout(() => {
-        profileContainer.style.display = "none";
-      }, 1500);
+    function triggerCircle() {
+      circle.classList.add("expand");
+      nameText.classList.add("hide");
+      ageText.classList.add("hide");
     }
 
-    // Trigger on scroll, click, or key press
-    window.addEventListener("scroll", triggerWipe, { once: true });
-    window.addEventListener("click", triggerWipe, { once: true });
-    window.addEventListener("keydown", triggerWipe, { once: true });
+    // Trigger on click, scroll, or page load
+    window.addEventListener("scroll", triggerCircle);
+    window.addEventListener("click", triggerCircle);
+    setTimeout(triggerCircle, 3000); // auto after 3s
   </script>
 </body>
 </html>
