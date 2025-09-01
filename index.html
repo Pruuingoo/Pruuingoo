@@ -19,64 +19,79 @@
 
     h1 { font-weight: 600; }
 
-    /* Profile Container */
     .profile-container {
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 40px 0;
+      display: inline-block;
     }
 
-    /* Profile Picture */
     .profile-pic {
       width: 160px;
       height: 160px;
       border-radius: 50%;
       object-fit: cover;
+      margin: 20px auto 30px auto;
       display: block;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      position: relative;
       z-index: 2;
     }
-
-    /* Name & Age (on sides of profile) */
-    .profile-text {
-      position: absolute;
-      font-size: 1.5rem;
-      font-weight: bold;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: opacity 0.6s ease;
-      z-index: 2;
-    }
-    .profile-name { left: -90px; }
-    .profile-age { right: -90px; }
 
     /* Circle effect */
     .circle {
       position: absolute;
-      width: 180px;
-      height: 180px;
-      border: 4px solid black;  /* hollow circle */
-      border-radius: 50%;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) scale(1);
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 3px solid black;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 1.5s ease-in-out;
       z-index: 1;
       pointer-events: none;
-      transition: transform 1.5s ease, opacity 1s ease;
-    }
-    .circle.expand {
-      transform: translate(-50%, -50%) scale(15); /* expand enough to cover screen */
-      opacity: 0;
     }
 
-    /* Hide text */
-    .fade-out {
-      opacity: 0;
+    .circle.active {
+      transform: translate(-50%, -50%) scale(20);
     }
 
-    /* Social icons */
+    /* Name and Age */
+    .profile-name,
+    .profile-age {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.6rem;
+      font-weight: bold;
+      transition: opacity 1s ease, transform 1s ease;
+      z-index: 3;
+    }
+
+    .profile-name {
+      right: 110%; /* closer to profile pic */
+    }
+
+    .profile-age {
+      left: 110%; /* closer to profile pic */
+    }
+
+    .hidden {
+      opacity: 0;
+      transform: translateY(-100px);
+    }
+
+    /* Responsive Fix for Mobile */
+    @media (max-width: 600px) {
+      .profile-name {
+        right: 95%; 
+        font-size: 1.4rem;
+      }
+      .profile-age {
+        left: 95%;
+        font-size: 1.4rem;
+      }
+    }
+
     #socials {
       display: flex;
       flex-wrap: wrap;
@@ -84,34 +99,30 @@
       gap: 25px;
       margin-top: 40px;
     }
+
     #socials a img {
       width: 40px;
       height: 40px;
       filter: invert(0);
       transition: transform 0.2s;
     }
+
     #socials a img:hover {
       transform: scale(1.2);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 500px) {
-      .profile-name { left: -60px; font-size: 1.2rem; }
-      .profile-age { right: -60px; font-size: 1.2rem; }
     }
   </style>
 </head>
 <body>
   <!-- Profile Section -->
   <div class="profile-container">
-    <span class="profile-text profile-name" id="profileName">Plui</span>
+    <div class="circle" id="circle"></div>
     <img src="https://cdn.discordapp.com/avatars/1090665275986296904/cc527221669f2a1ab650313f0678ddce.png?size=512"
          alt="Discord Profile" class="profile-pic">
-    <span class="profile-text profile-age" id="profileAge">13</span>
-    <div class="circle" id="circle"></div>
+    <div class="profile-name" id="profileName">Plui</div>
+    <div class="profile-age" id="profileAge">18</div>
   </div>
 
-  <!-- About Me -->
+  <!-- About Me Section -->
   <h1>About Me</h1>
   <p>
     Hey, I’m <b>Plui</b>. I’m a person who likes exploring anime, games, Discord, and random tech.  
@@ -171,22 +182,29 @@
 
   <script>
     const circle = document.getElementById("circle");
-    const name = document.getElementById("profileName");
-    const age = document.getElementById("profileAge");
+    const profileName = document.getElementById("profileName");
+    const profileAge = document.getElementById("profileAge");
 
-    function triggerAnimation() {
-      circle.classList.add("expand");
-      name.classList.add("fade-out");
-      age.classList.add("fade-out");
+    function triggerCircle() {
+      circle.classList.add("active");
+      profileName.classList.add("hidden");
+      profileAge.classList.add("hidden");
 
       setTimeout(() => {
-        circle.style.display = "none"; // hide circle after animation
-      }, 1500);
+        circle.classList.remove("active");
+        profileName.classList.remove("hidden");
+        profileAge.classList.remove("hidden");
+      }, 2000);
     }
 
-    // Run on first scroll, click, or tap
+    // Run on load
+    window.addEventListener("load", () => {
+      setTimeout(triggerCircle, 800);
+    });
+
+    // Run on interaction
     ["scroll", "click", "touchstart"].forEach(evt => {
-      window.addEventListener(evt, triggerAnimation, { once: true });
+      window.addEventListener(evt, triggerCircle);
     });
   </script>
 </body>
