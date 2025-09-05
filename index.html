@@ -17,11 +17,23 @@
       overflow-x: hidden;
     }
 
-    h1 { font-weight: 600; }
+    h1 { 
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 1s ease forwards 1.5s;
+      letter-spacing: 2px;
+    }
 
+    p {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 1s ease forwards 2s;
+    }
+
+    /* Profile Section */
     .profile-container {
-      position: relative;
-      display: inline-block;
+      margin: 40px 0;
     }
 
     .profile-pic {
@@ -29,69 +41,24 @@
       height: 160px;
       border-radius: 50%;
       object-fit: cover;
-      margin: 20px auto 30px auto;
       display: block;
+      margin: 0 auto;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      position: relative;
-      z-index: 2;
-    }
-
-    /* Circle effect */
-    .circle {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      border: 3px solid black;
-      transform: translate(-50%, -50%) scale(0);
-      transition: transform 1.5s ease-in-out;
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    .circle.active {
-      transform: translate(-50%, -50%) scale(20);
-    }
-
-    /* Name and Age */
-    .profile-name,
-    .profile-age {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.6rem;
-      font-weight: bold;
-      transition: opacity 1s ease, transform 1s ease;
-      z-index: 3;
+      opacity: 0;
+      transform: scale(0.8);
+      animation: zoomIn 1s ease forwards 0.5s;
     }
 
     .profile-name {
-      right: 130%; /* closer to profile pic */
-    }
-
-    .profile-age {
-      left: 130%; /* closer to profile pic */
-    }
-
-    .hidden {
+      margin-top: 15px;
+      font-size: 2rem;
+      font-weight: bold;
       opacity: 0;
-      transform: translateY(-100px);
+      transform: translateY(20px);
+      animation: fadeUp 1s ease forwards 1s;
     }
 
-    /* Responsive Fix for Mobile */
-    @media (max-width: 600px) {
-      .profile-name {
-        right: 105%; 
-        font-size: 1.4rem;
-      }
-      .profile-age {
-        left: 110%;
-        font-size: 1.4rem;
-      }
-    }
-
+    /* Social icons */
     #socials {
       display: flex;
       flex-wrap: wrap;
@@ -103,23 +70,117 @@
     #socials a img {
       width: 40px;
       height: 40px;
-      filter: invert(0);
-      transition: transform 0.2s;
+      cursor: pointer;
+      transform: scale(0);
+      animation: popIn 0.5s ease forwards;
     }
 
+    /* Staggered animation for icons */
+    #socials a:nth-child(1) img { animation-delay: 2.2s; }
+    #socials a:nth-child(2) img { animation-delay: 2.4s; }
+    #socials a:nth-child(3) img { animation-delay: 2.6s; }
+    #socials a:nth-child(4) img { animation-delay: 2.8s; }
+    #socials a:nth-child(5) img { animation-delay: 3s; }
+    #socials a:nth-child(6) img { animation-delay: 3.2s; }
+    #socials a:nth-child(7) img { animation-delay: 3.4s; }
+    #socials a:nth-child(8) img { animation-delay: 3.6s; }
+    #socials a:nth-child(9) img { animation-delay: 3.8s; }
+    #socials a:nth-child(10) img { animation-delay: 4s; }
+    #socials a:nth-child(11) img { animation-delay: 4.2s; }
+    #socials a:nth-child(12) img { animation-delay: 4.4s; }
+    #socials a:nth-child(13) img { animation-delay: 4.6s; }
+    #socials a:nth-child(14) img { animation-delay: 4.8s; }
+    #socials a:nth-child(15) img { animation-delay: 5s; }
+
     #socials a img:hover {
-      transform: scale(1.2);
+      transform: scale(1.3) rotate(10deg);
+      transition: 0.3s ease;
+    }
+
+    /* Modal Overlay */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: rgba(255,255,255,0.9);
+      border: 2px solid white;
+      border-radius: 15px;
+      padding: 20px;
+      width: 280px;
+      text-align: center;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .modal-content img {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 15px;
+    }
+
+    .modal-link {
+      font-size: 14px;
+      color: black;
+      word-break: break-all;
+      margin-bottom: 15px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-buttons button {
+      background: black;
+      color: white;
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .modal-buttons button:hover {
+      opacity: 0.8;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes zoomIn {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes popIn {
+      to {
+        transform: scale(1);
+      }
     }
   </style>
 </head>
 <body>
   <!-- Profile Section -->
   <div class="profile-container">
-    <div class="circle" id="circle"></div>
     <img src="https://cdn.discordapp.com/avatars/1090665275986296904/cc527221669f2a1ab650313f0678ddce.png?size=512"
          alt="Discord Profile" class="profile-pic">
-    <div class="profile-name" id="profileName">Plui</div>
-    <div class="profile-age" id="profileAge">I'm 13</div>
+    <div class="profile-name">Plui</div>
   </div>
 
   <!-- About Me Section -->
@@ -133,78 +194,69 @@
 
   <!-- Social Logos -->
   <section id="socials">
-    <a href="https://discord.com/users/1090665275986296904" target="_blank">
-      <img src="https://simpleicons.org/icons/discord.svg" alt="Discord">
-    </a>
-    <a href="https://instagram.com/pruuingoo/" target="_blank">
-      <img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram">
-    </a>
-    <a href="https://youtube.com/@Pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube">
-    </a>
-    <a href="https://music.youtube.com/@nowepruim" target="_blank">
-      <img src="https://simpleicons.org/icons/youtubemusic.svg" alt="Music YouTube">
-    </a>
-    <a href="https://anilist.co/user/pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/anilist.svg" alt="AniList">
-    </a>
-    <a href="https://x.com/Pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/x.svg" alt="X">
-    </a>
-    <a href="https://reddit.com/user/Tasty-Replacement310/" target="_blank">
-      <img src="https://simpleicons.org/icons/reddit.svg" alt="Reddit">
-    </a>
-    <a href="https://twitch.tv/pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/twitch.svg" alt="Twitch">
-    </a>
-    <a href="https://pinterest.com/OttrxZPqu" target="_blank">
-      <img src="https://simpleicons.org/icons/pinterest.svg" alt="Pinterest">
-    </a>
-    <a href="mailto:pruuingoo@gmail.com" target="_blank">
-      <img src="https://simpleicons.org/icons/maildotru.svg" alt="Email">
-    </a>
-    <a href="https://roblox.com/users/5279565619/profile" target="_blank">
-      <img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox">
-    </a>
-    <a href="https://github.com/Pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/github.svg" alt="GitHub">
-    </a>
-    <a href="https://soundcloud.com/pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/soundcloud.svg" alt="SoundCloud">
-    </a>
-    <a href="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi" target="_blank">
-      <img src="https://simpleicons.org/icons/spotify.svg" alt="Spotify">
-    </a>
-    <a href="https://tiktok.com/@pruuingoo" target="_blank">
-      <img src="https://simpleicons.org/icons/tiktok.svg" alt="TikTok">
-    </a>
+    <a data-link="https://discord.com/users/1090665275986296904"><img src="https://simpleicons.org/icons/discord.svg" alt="Discord"></a>
+    <a data-link="https://instagram.com/pruuingoo/"><img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram"></a>
+    <a data-link="https://youtube.com/@Pruuingoo"><img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube"></a>
+    <a data-link="https://music.youtube.com/@nowepruim"><img src="https://simpleicons.org/icons/youtubemusic.svg" alt="YT Music"></a>
+    <a data-link="https://anilist.co/user/pruuingoo"><img src="https://simpleicons.org/icons/anilist.svg" alt="AniList"></a>
+    <a data-link="https://x.com/Pruuingoo"><img src="https://simpleicons.org/icons/x.svg" alt="X"></a>
+    <a data-link="https://reddit.com/user/Tasty-Replacement310/"><img src="https://simpleicons.org/icons/reddit.svg" alt="Reddit"></a>
+    <a data-link="https://twitch.tv/pruuingoo"><img src="https://simpleicons.org/icons/twitch.svg" alt="Twitch"></a>
+    <a data-link="https://pinterest.com/OttrxZPqu"><img src="https://simpleicons.org/icons/pinterest.svg" alt="Pinterest"></a>
+    <a data-link="mailto:pruuingoo@gmail.com"><img src="https://simpleicons.org/icons/maildotru.svg" alt="Email"></a>
+    <a data-link="https://roblox.com/users/5279565619/profile"><img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox"></a>
+    <a data-link="https://github.com/Pruuingoo"><img src="https://simpleicons.org/icons/github.svg" alt="GitHub"></a>
+    <a data-link="https://soundcloud.com/pruuingoo"><img src="https://simpleicons.org/icons/soundcloud.svg" alt="SoundCloud"></a>
+    <a data-link="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi"><img src="https://simpleicons.org/icons/spotify.svg" alt="Spotify"></a>
+    <a data-link="https://tiktok.com/@pruuingoo"><img src="https://simpleicons.org/icons/tiktok.svg" alt="TikTok"></a>
   </section>
 
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <img id="modal-icon" src="" alt="icon">
+      <div class="modal-link" id="modal-link"></div>
+      <div class="modal-buttons">
+        <button id="copyBtn">Copy</button>
+        <button id="openBtn">Open</button>
+        <button id="closeBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const circle = document.getElementById("circle");
-    const profileName = document.getElementById("profileName");
-    const profileAge = document.getElementById("profileAge");
+    const socials = document.querySelectorAll('#socials a');
+    const modal = document.getElementById('modal');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalLink = document.getElementById('modal-link');
+    const copyBtn = document.getElementById('copyBtn');
+    const openBtn = document.getElementById('openBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    let currentLink = '';
 
-    function triggerCircle() {
-      circle.classList.add("active");
-      profileName.classList.add("hidden");
-      profileAge.classList.add("hidden");
-
-      setTimeout(() => {
-        circle.classList.remove("active");
-        profileName.classList.remove("hidden");
-        profileAge.classList.remove("hidden");
-      }, 2000);
-    }
-
-    // Run on load
-    window.addEventListener("load", () => {
-      setTimeout(triggerCircle, 800);
+    socials.forEach(icon => {
+      icon.addEventListener('click', e => {
+        e.preventDefault();
+        currentLink = icon.getAttribute('data-link');
+        modalIcon.src = icon.querySelector('img').src;
+        modalLink.textContent = currentLink;
+        copyBtn.textContent = 'Copy';
+        modal.style.display = 'flex';
+      });
     });
 
-    // Run on interaction
-    ["scroll", "click", "touchstart"].forEach(evt => {
-      window.addEventListener(evt, triggerCircle);
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(currentLink).then(() => {
+        copyBtn.textContent = 'Copied';
+      });
+    });
+
+    openBtn.addEventListener('click', () => {
+      window.open(currentLink, '_blank');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
     });
   </script>
 </body>
