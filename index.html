@@ -133,24 +133,54 @@
       margin-bottom: 15px;
     }
 
+    /* Buttons Layout */
     .modal-buttons {
       display: flex;
       flex-direction: column;
+      gap: 12px;
+    }
+
+    .inline-buttons {
+      display: flex;
       gap: 10px;
     }
 
     .modal-buttons button {
-      background: black;
-      color: white;
+      flex: 1;
       border: none;
       padding: 10px;
       font-size: 14px;
       border-radius: 8px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: 0.2s ease;
+    }
+
+    /* Button colors */
+    #copyBtn {
+      background: #6a0dad;
+      color: white;
+    }
+
+    #openBtn {
+      background: #000;
+      color: white;
+    }
+
+    #closeBtn {
+      background: #d32f2f;
+      color: white;
+    }
+
+    #closeBtn:hover {
+      background: #b71c1c;
     }
 
     .modal-buttons button:hover {
-      opacity: 0.8;
+      opacity: 0.85;
     }
 
     /* Animations */
@@ -217,9 +247,11 @@
       <img id="modal-icon" src="" alt="icon">
       <div class="modal-link" id="modal-link"></div>
       <div class="modal-buttons">
-        <button id="copyBtn">Copy</button>
-        <button id="openBtn">Open</button>
-        <button id="closeBtn">Close</button>
+        <div class="inline-buttons">
+          <button id="copyBtn">📋 Copy</button>
+          <button id="openBtn">🔗 Open</button>
+        </div>
+        <button id="closeBtn">❌ Close</button>
       </div>
     </div>
   </div>
@@ -240,14 +272,14 @@
         currentLink = icon.getAttribute('data-link');
         modalIcon.src = icon.querySelector('img').src;
         modalLink.textContent = currentLink;
-        copyBtn.textContent = 'Copy';
+        copyBtn.textContent = '📋 Copy';
         modal.style.display = 'flex';
       });
     });
 
     copyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(currentLink).then(() => {
-        copyBtn.textContent = 'Copied';
+        copyBtn.textContent = '✅ Copied';
       });
     });
 
