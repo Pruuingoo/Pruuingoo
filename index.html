@@ -11,8 +11,27 @@
     .profile-container { margin: 40px 0; }
     .profile-pic { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; transform: scale(0.8); animation: zoomIn 1s ease forwards 0.5s; }
     .profile-name { margin-top: 15px; font-size: 2rem; font-weight: bold; opacity: 0; transform: translateY(20px); animation: fadeUp 1s ease forwards 1s; }
+    
+    /* Socials */
     #socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; margin-top: 40px; }
     #socials a img { width: 40px; height: 40px; cursor: pointer; transform: scale(0); animation: popIn 0.5s ease forwards; }
+    /* Staggered delays */
+    #socials a:nth-child(1) img { animation-delay: 2.2s; }
+    #socials a:nth-child(2) img { animation-delay: 2.4s; }
+    #socials a:nth-child(3) img { animation-delay: 2.6s; }
+    #socials a:nth-child(4) img { animation-delay: 2.8s; }
+    #socials a:nth-child(5) img { animation-delay: 3s; }
+    #socials a:nth-child(6) img { animation-delay: 3.2s; }
+    #socials a:nth-child(7) img { animation-delay: 3.4s; }
+    #socials a:nth-child(8) img { animation-delay: 3.6s; }
+    #socials a:nth-child(9) img { animation-delay: 3.8s; }
+    #socials a:nth-child(10) img { animation-delay: 4s; }
+    #socials a:nth-child(11) img { animation-delay: 4.2s; }
+    #socials a:nth-child(12) img { animation-delay: 4.4s; }
+    #socials a:nth-child(13) img { animation-delay: 4.6s; }
+    #socials a:nth-child(14) img { animation-delay: 4.8s; }
+    #socials a:nth-child(15) img { animation-delay: 5s; }
+
     #socials a img:hover { transform: scale(1.3) rotate(10deg); transition: 0.3s ease; }
 
     /* Modal */
@@ -22,8 +41,17 @@
     .modal-link { font-size: 14px; color: black; word-break: break-all; margin-bottom: 15px; }
     .modal-buttons { display: flex; flex-direction: column; gap: 12px; }
     .inline-buttons { display: flex; gap: 10px; }
-    .modal-buttons button { flex: 1; border: 1px solid #ccc; background: #fff; color: #000; padding: 10px; font-size: 14px; border-radius: 8px; cursor: pointer; transition: 0.2s ease; }
-    .modal-buttons button:hover { background: #f0f0f0; }
+    .modal-buttons button { flex: 1; border: none; padding: 10px; font-size: 14px; border-radius: 8px; cursor: pointer; transition: 0.2s ease; color: white; }
+
+    /* Button colors */
+    #copyBtn { background: #6a0dad; }        /* purple */
+    #openBtn { background: #000; }           /* black */
+    #closeBtn { background: #d32f2f; }       /* red */
+    #closeBtn:hover { background: #b71c1c; }
+    #primaryBtn, #secondaryBtn { background: #fff; color: #000; border: 1px solid #ccc; }
+    #primaryBtn:hover, #secondaryBtn:hover { background: #f0f0f0; }
+    #choiceCloseBtn { background: #d32f2f; } /* red */
+    #choiceCloseBtn:hover { background: #b71c1c; }
 
     /* Animations */
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
