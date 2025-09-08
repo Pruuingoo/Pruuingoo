@@ -5,204 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Plui – About Me</title>
   <style>
-    body {
-      background-color: #F7F0F7;
-      color: #000;
-      font-family: Arial, Helvetica, sans-serif;
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 2rem;
-      line-height: 1.6;
-      text-align: center;
-      overflow-x: hidden;
-    }
+    body { background-color: #F7F0F7; color: #000; font-family: Arial, Helvetica, sans-serif; max-width: 700px; margin: 0 auto; padding: 2rem; line-height: 1.6; text-align: center; overflow-x: hidden; }
+    h1 { font-weight: 600; opacity: 0; transform: translateY(20px); animation: fadeUp 1s ease forwards 1.5s; letter-spacing: 2px; }
+    p { opacity: 0; transform: translateY(20px); animation: fadeUp 1s ease forwards 2s; }
+    .profile-container { margin: 40px 0; }
+    .profile-pic { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; transform: scale(0.8); animation: zoomIn 1s ease forwards 0.5s; }
+    .profile-name { margin-top: 15px; font-size: 2rem; font-weight: bold; opacity: 0; transform: translateY(20px); animation: fadeUp 1s ease forwards 1s; }
+    #socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; margin-top: 40px; }
+    #socials a img { width: 40px; height: 40px; cursor: pointer; transform: scale(0); animation: popIn 0.5s ease forwards; }
+    #socials a img:hover { transform: scale(1.3) rotate(10deg); transition: 0.3s ease; }
 
-    h1 { 
-      font-weight: 600;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeUp 1s ease forwards 1.5s;
-      letter-spacing: 2px;
-    }
-
-    p {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeUp 1s ease forwards 2s;
-    }
-
-    /* Profile Section */
-    .profile-container {
-      margin: 40px 0;
-    }
-
-    .profile-pic {
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      object-fit: cover;
-      display: block;
-      margin: 0 auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      opacity: 0;
-      transform: scale(0.8);
-      animation: zoomIn 1s ease forwards 0.5s;
-    }
-
-    .profile-name {
-      margin-top: 15px;
-      font-size: 2rem;
-      font-weight: bold;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeUp 1s ease forwards 1s;
-    }
-
-    /* Social icons */
-    #socials {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 25px;
-      margin-top: 40px;
-    }
-
-    #socials a img {
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      transform: scale(0);
-      animation: popIn 0.5s ease forwards;
-    }
-
-    /* Staggered animation for icons */
-    #socials a:nth-child(1) img { animation-delay: 2.2s; }
-    #socials a:nth-child(2) img { animation-delay: 2.4s; }
-    #socials a:nth-child(3) img { animation-delay: 2.6s; }
-    #socials a:nth-child(4) img { animation-delay: 2.8s; }
-    #socials a:nth-child(5) img { animation-delay: 3s; }
-    #socials a:nth-child(6) img { animation-delay: 3.2s; }
-    #socials a:nth-child(7) img { animation-delay: 3.4s; }
-    #socials a:nth-child(8) img { animation-delay: 3.6s; }
-    #socials a:nth-child(9) img { animation-delay: 3.8s; }
-    #socials a:nth-child(10) img { animation-delay: 4s; }
-    #socials a:nth-child(11) img { animation-delay: 4.2s; }
-    #socials a:nth-child(12) img { animation-delay: 4.4s; }
-    #socials a:nth-child(13) img { animation-delay: 4.6s; }
-    #socials a:nth-child(14) img { animation-delay: 4.8s; }
-    #socials a:nth-child(15) img { animation-delay: 5s; }
-
-    #socials a img:hover {
-      transform: scale(1.3) rotate(10deg);
-      transition: 0.3s ease;
-    }
-
-    /* Modal Overlay */
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .modal-content {
-      background: rgba(255,255,255,0.9);
-      border: 2px solid white;
-      border-radius: 15px;
-      padding: 20px;
-      width: 280px;
-      text-align: center;
-      animation: fadeUp 0.5s ease forwards;
-    }
-
-    .modal-content img {
-      width: 50px;
-      height: 50px;
-      margin-bottom: 15px;
-    }
-
-    .modal-link {
-      font-size: 14px;
-      color: black;
-      word-break: break-all;
-      margin-bottom: 15px;
-    }
-
-    /* Buttons Layout */
-    .modal-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .inline-buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .modal-buttons button {
-      flex: 1;
-      border: none;
-      padding: 10px;
-      font-size: 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: 0.2s ease;
-    }
-
-    /* Button colors */
-    #copyBtn {
-      background: #6a0dad;
-      color: white;
-    }
-
-    #openBtn {
-      background: #000;
-      color: white;
-    }
-
-    #closeBtn {
-      background: #d32f2f;
-      color: white;
-    }
-
-    #closeBtn:hover {
-      background: #b71c1c;
-    }
-
-    .modal-buttons button:hover {
-      opacity: 0.85;
-    }
+    /* Modal */
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: rgba(255,255,255,0.9); border: 2px solid white; border-radius: 15px; padding: 20px; width: 280px; text-align: center; animation: fadeUp 0.5s ease forwards; }
+    .modal-content img { width: 50px; height: 50px; margin-bottom: 15px; }
+    .modal-link { font-size: 14px; color: black; word-break: break-all; margin-bottom: 15px; }
+    .modal-buttons { display: flex; flex-direction: column; gap: 12px; }
+    .inline-buttons { display: flex; gap: 10px; }
+    .modal-buttons button { flex: 1; border: 1px solid #ccc; background: #fff; color: #000; padding: 10px; font-size: 14px; border-radius: 8px; cursor: pointer; transition: 0.2s ease; }
+    .modal-buttons button:hover { background: #f0f0f0; }
 
     /* Animations */
-    @keyframes fadeUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes zoomIn {
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    @keyframes popIn {
-      to {
-        transform: scale(1);
-      }
-    }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes zoomIn { to { opacity: 1; transform: scale(1); } }
+    @keyframes popIn { to { transform: scale(1); } }
   </style>
 </head>
 <body>
@@ -225,7 +51,7 @@
   <!-- Social Logos -->
   <section id="socials">
     <a data-link="https://discord.com/users/1090665275986296904"><img src="https://simpleicons.org/icons/discord.svg" alt="Discord"></a>
-    <a data-link="https://instagram.com/pruuingoo/"><img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram"></a>
+    <a data-link="instagram"><img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram"></a>
     <a data-link="https://youtube.com/@Pruuingoo"><img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube"></a>
     <a data-link="https://music.youtube.com/@nowepruim"><img src="https://simpleicons.org/icons/youtubemusic.svg" alt="YT Music"></a>
     <a data-link="https://anilist.co/user/pruuingoo"><img src="https://simpleicons.org/icons/anilist.svg" alt="AniList"></a>
@@ -234,24 +60,37 @@
     <a data-link="https://twitch.tv/pruuingoo"><img src="https://simpleicons.org/icons/twitch.svg" alt="Twitch"></a>
     <a data-link="https://pinterest.com/OttrxZPqu"><img src="https://simpleicons.org/icons/pinterest.svg" alt="Pinterest"></a>
     <a data-link="mailto:pruuingoo@gmail.com"><img src="https://simpleicons.org/icons/maildotru.svg" alt="Email"></a>
-    <a data-link="https://roblox.com/users/5279565619/profile"><img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox"></a>
+    <a data-link="roblox"><img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox"></a>
     <a data-link="https://github.com/Pruuingoo"><img src="https://simpleicons.org/icons/github.svg" alt="GitHub"></a>
     <a data-link="https://soundcloud.com/pruuingoo"><img src="https://simpleicons.org/icons/soundcloud.svg" alt="SoundCloud"></a>
     <a data-link="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi"><img src="https://simpleicons.org/icons/spotify.svg" alt="Spotify"></a>
     <a data-link="https://tiktok.com/@pruuingoo"><img src="https://simpleicons.org/icons/tiktok.svg" alt="TikTok"></a>
   </section>
 
-  <!-- Modal -->
+  <!-- Account Choice Modal -->
+  <div class="modal" id="choiceModal">
+    <div class="modal-content">
+      <img id="choice-icon" src="" alt="icon">
+      <h3>Select Account</h3>
+      <div class="modal-buttons">
+        <button id="primaryBtn">Primary</button>
+        <button id="secondaryBtn">Secondary</button>
+        <button id="choiceCloseBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Normal Modal -->
   <div class="modal" id="modal">
     <div class="modal-content">
       <img id="modal-icon" src="" alt="icon">
       <div class="modal-link" id="modal-link"></div>
       <div class="modal-buttons">
         <div class="inline-buttons">
-          <button id="copyBtn">📋 Copy</button>
-          <button id="openBtn">🔗 Open</button>
+          <button id="copyBtn">Copy</button>
+          <button id="openBtn">Open</button>
         </div>
-        <button id="closeBtn">❌ Close</button>
+        <button id="closeBtn">Close</button>
       </div>
     </div>
   </div>
@@ -264,22 +103,73 @@
     const copyBtn = document.getElementById('copyBtn');
     const openBtn = document.getElementById('openBtn');
     const closeBtn = document.getElementById('closeBtn');
+
+    const choiceModal = document.getElementById('choiceModal');
+    const choiceIcon = document.getElementById('choice-icon');
+    const primaryBtn = document.getElementById('primaryBtn');
+    const secondaryBtn = document.getElementById('secondaryBtn');
+    const choiceCloseBtn = document.getElementById('choiceCloseBtn');
+
     let currentLink = '';
+    let currentIcon = '';
+    let selectedPlatform = '';
+
+    const accounts = {
+      instagram: {
+        primary: "https://instagram.com/pruuingoo/",
+        secondary: "https://www.instagram.com/plubinki"
+      },
+      roblox: {
+        primary: "https://roblox.com/users/5279565619/profile",
+        secondary: "https://www.roblox.com/users/8808804903/profile?friendshipSourceType=PlayerSearch"
+      }
+    };
 
     socials.forEach(icon => {
       icon.addEventListener('click', e => {
         e.preventDefault();
-        currentLink = icon.getAttribute('data-link');
-        modalIcon.src = icon.querySelector('img').src;
-        modalLink.textContent = currentLink;
-        copyBtn.textContent = '📋 Copy';
-        modal.style.display = 'flex';
+        const link = icon.getAttribute('data-link');
+        currentIcon = icon.querySelector('img').src;
+
+        if (accounts[link]) {
+          selectedPlatform = link;
+          choiceIcon.src = currentIcon;
+          choiceModal.style.display = 'flex';
+        } else {
+          currentLink = link;
+          modalIcon.src = currentIcon;
+          modalLink.textContent = currentLink;
+          copyBtn.textContent = 'Copy';
+          modal.style.display = 'flex';
+        }
       });
+    });
+
+    function openMainModal(link) {
+      currentLink = link;
+      modalIcon.src = currentIcon;
+      modalLink.textContent = currentLink;
+      copyBtn.textContent = 'Copy';
+      modal.style.display = 'flex';
+    }
+
+    primaryBtn.addEventListener('click', () => {
+      openMainModal(accounts[selectedPlatform].primary);
+      choiceModal.style.display = 'none';
+    });
+
+    secondaryBtn.addEventListener('click', () => {
+      openMainModal(accounts[selectedPlatform].secondary);
+      choiceModal.style.display = 'none';
+    });
+
+    choiceCloseBtn.addEventListener('click', () => {
+      choiceModal.style.display = 'none';
     });
 
     copyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(currentLink).then(() => {
-        copyBtn.textContent = '✅ Copied';
+        copyBtn.textContent = 'Copied';
       });
     });
 
