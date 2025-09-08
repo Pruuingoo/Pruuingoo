@@ -37,21 +37,27 @@
     /* Modal */
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); display: none; justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background: rgba(255,255,255,0.9); border: 2px solid white; border-radius: 15px; padding: 20px; width: 280px; text-align: center; animation: fadeUp 0.5s ease forwards; }
-    .modal-content img { width: 50px; height: 50px; margin-bottom: 15px; }
+    .modal-content img { width: 50px; height: 50px; margin-bottom: 5px; }
+    .modal-title { font-weight: bold; margin-bottom: 15px; }
     .modal-link { font-size: 14px; color: black; word-break: break-all; margin-bottom: 15px; }
     .modal-buttons { display: flex; flex-direction: column; gap: 12px; }
     .inline-buttons { display: flex; gap: 10px; }
-    .modal-buttons button { flex: 1; border: none; padding: 10px; font-size: 14px; border-radius: 8px; cursor: pointer; transition: 0.2s ease; color: white; }
+    .modal-buttons button { flex: 1; border: none; padding: 10px; font-size: 14px; border-radius: 8px; cursor: pointer; transition: 0.2s ease; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
     /* Button colors */
-    #copyBtn { background: #6a0dad; }        /* purple */
-    #openBtn { background: #000; }           /* black */
-    #closeBtn { background: #d32f2f; }       /* red */
+    #copyBtn { background: #6a0dad; }
+    #openBtn { background: #000; }
+    #closeBtn { background: #d32f2f; }
     #closeBtn:hover { background: #b71c1c; }
     #primaryBtn, #secondaryBtn { background: #fff; color: #000; border: 1px solid #ccc; }
     #primaryBtn:hover, #secondaryBtn:hover { background: #f0f0f0; }
-    #choiceCloseBtn { background: #d32f2f; } /* red */
+    #choiceCloseBtn { background: #d32f2f; color: white; }
     #choiceCloseBtn:hover { background: #b71c1c; }
+
+    /* SVG Icons */
+    .btn-icon { width: 16px; height: 16px; fill: white; }
+    .btn-icon-black { fill: white; }
+    .btn-icon-red { fill: white; }
 
     /* Animations */
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
@@ -78,32 +84,36 @@
 
   <!-- Social Logos -->
   <section id="socials">
-    <a data-link="https://discord.com/users/1090665275986296904"><img src="https://simpleicons.org/icons/discord.svg" alt="Discord"></a>
-    <a data-link="instagram"><img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram"></a>
-    <a data-link="https://youtube.com/@Pruuingoo"><img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube"></a>
-    <a data-link="https://music.youtube.com/@nowepruim"><img src="https://simpleicons.org/icons/youtubemusic.svg" alt="YT Music"></a>
-    <a data-link="https://anilist.co/user/pruuingoo"><img src="https://simpleicons.org/icons/anilist.svg" alt="AniList"></a>
-    <a data-link="https://x.com/Pruuingoo"><img src="https://simpleicons.org/icons/x.svg" alt="X"></a>
-    <a data-link="https://reddit.com/user/Tasty-Replacement310/"><img src="https://simpleicons.org/icons/reddit.svg" alt="Reddit"></a>
-    <a data-link="https://twitch.tv/pruuingoo"><img src="https://simpleicons.org/icons/twitch.svg" alt="Twitch"></a>
-    <a data-link="https://pinterest.com/OttrxZPqu"><img src="https://simpleicons.org/icons/pinterest.svg" alt="Pinterest"></a>
-    <a data-link="mailto:pruuingoo@gmail.com"><img src="https://simpleicons.org/icons/maildotru.svg" alt="Email"></a>
-    <a data-link="roblox"><img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox"></a>
-    <a data-link="https://github.com/Pruuingoo"><img src="https://simpleicons.org/icons/github.svg" alt="GitHub"></a>
-    <a data-link="https://soundcloud.com/pruuingoo"><img src="https://simpleicons.org/icons/soundcloud.svg" alt="SoundCloud"></a>
-    <a data-link="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi"><img src="https://simpleicons.org/icons/spotify.svg" alt="Spotify"></a>
-    <a data-link="https://tiktok.com/@pruuingoo"><img src="https://simpleicons.org/icons/tiktok.svg" alt="TikTok"></a>
+    <a data-link="https://discord.com/users/1090665275986296904" data-name="Discord"><img src="https://simpleicons.org/icons/discord.svg" alt="Discord"></a>
+    <a data-link="instagram" data-name="Instagram"><img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram"></a>
+    <a data-link="https://youtube.com/@Pruuingoo" data-name="YouTube"><img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube"></a>
+    <a data-link="https://music.youtube.com/@nowepruim" data-name="YouTube Music"><img src="https://simpleicons.org/icons/youtubemusic.svg" alt="YT Music"></a>
+    <a data-link="https://anilist.co/user/pruuingoo" data-name="AniList"><img src="https://simpleicons.org/icons/anilist.svg" alt="AniList"></a>
+    <a data-link="https://x.com/Pruuingoo" data-name="X"><img src="https://simpleicons.org/icons/x.svg" alt="X"></a>
+    <a data-link="https://reddit.com/user/Tasty-Replacement310/" data-name="Reddit"><img src="https://simpleicons.org/icons/reddit.svg" alt="Reddit"></a>
+    <a data-link="https://twitch.tv/pruuingoo" data-name="Twitch"><img src="https://simpleicons.org/icons/twitch.svg" alt="Twitch"></a>
+    <a data-link="https://pinterest.com/OttrxZPqu" data-name="Pinterest"><img src="https://simpleicons.org/icons/pinterest.svg" alt="Pinterest"></a>
+    <a data-link="mailto:pruuingoo@gmail.com" data-name="Email"><img src="https://simpleicons.org/icons/maildotru.svg" alt="Email"></a>
+    <a data-link="roblox" data-name="Roblox"><img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox"></a>
+    <a data-link="https://github.com/Pruuingoo" data-name="GitHub"><img src="https://simpleicons.org/icons/github.svg" alt="GitHub"></a>
+    <a data-link="https://soundcloud.com/pruuingoo" data-name="SoundCloud"><img src="https://simpleicons.org/icons/soundcloud.svg" alt="SoundCloud"></a>
+    <a data-link="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi" data-name="Spotify"><img src="https://simpleicons.org/icons/spotify.svg" alt="Spotify"></a>
+    <a data-link="https://tiktok.com/@pruuingoo" data-name="TikTok"><img src="https://simpleicons.org/icons/tiktok.svg" alt="TikTok"></a>
   </section>
 
   <!-- Account Choice Modal -->
   <div class="modal" id="choiceModal">
     <div class="modal-content">
       <img id="choice-icon" src="" alt="icon">
+      <div class="modal-title" id="choice-title"></div>
       <h3>Select Account</h3>
       <div class="modal-buttons">
         <button id="primaryBtn">Primary</button>
         <button id="secondaryBtn">Secondary</button>
-        <button id="choiceCloseBtn">Cancel</button>
+        <button id="choiceCloseBtn">
+          <svg class="btn-icon btn-icon-red" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.41L12 13.41l-6.29 6.29-1.41-1.41L10.59 12 4.29 5.71 5.7 4.3 12 10.59l6.29-6.3z"/></svg>
+          Cancel
+        </button>
       </div>
     </div>
   </div>
@@ -112,13 +122,23 @@
   <div class="modal" id="modal">
     <div class="modal-content">
       <img id="modal-icon" src="" alt="icon">
+      <div class="modal-title" id="modal-title"></div>
       <div class="modal-link" id="modal-link"></div>
       <div class="modal-buttons">
         <div class="inline-buttons">
-          <button id="copyBtn">Copy</button>
-          <button id="openBtn">Open</button>
+          <button id="copyBtn">
+            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v16h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 18H8V7h11v16z"/></svg>
+            Copy
+          </button>
+          <button id="openBtn">
+            <svg class="btn-icon btn-icon-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 3v2h3.59L10 12.59 11.41 14 19 6.41V10h2V3h-7z"/><path d="M5 5h4V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-4h-2v4H5V5z"/></svg>
+            Open
+          </button>
         </div>
-        <button id="closeBtn">Close</button>
+        <button id="closeBtn">
+          <svg class="btn-icon btn-icon-red" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.41L12 13.41l-6.29 6.29-1.41-1.41L10.59 12 4.29 5.71 5.7 4.3 12 10.59l6.29-6.3z"/></svg>
+          Close
+        </button>
       </div>
     </div>
   </div>
@@ -127,6 +147,7 @@
     const socials = document.querySelectorAll('#socials a');
     const modal = document.getElementById('modal');
     const modalIcon = document.getElementById('modal-icon');
+    const modalTitle = document.getElementById('modal-title');
     const modalLink = document.getElementById('modal-link');
     const copyBtn = document.getElementById('copyBtn');
     const openBtn = document.getElementById('openBtn');
@@ -134,12 +155,14 @@
 
     const choiceModal = document.getElementById('choiceModal');
     const choiceIcon = document.getElementById('choice-icon');
+    const choiceTitle = document.getElementById('choice-title');
     const primaryBtn = document.getElementById('primaryBtn');
     const secondaryBtn = document.getElementById('secondaryBtn');
     const choiceCloseBtn = document.getElementById('choiceCloseBtn');
 
     let currentLink = '';
     let currentIcon = '';
+    let currentName = '';
     let selectedPlatform = '';
 
     const accounts = {
@@ -158,14 +181,17 @@
         e.preventDefault();
         const link = icon.getAttribute('data-link');
         currentIcon = icon.querySelector('img').src;
+        currentName = icon.getAttribute('data-name');
 
         if (accounts[link]) {
           selectedPlatform = link;
           choiceIcon.src = currentIcon;
+          choiceTitle.textContent = currentName;
           choiceModal.style.display = 'flex';
         } else {
           currentLink = link;
           modalIcon.src = currentIcon;
+          modalTitle.textContent = currentName;
           modalLink.textContent = currentLink;
           copyBtn.textContent = 'Copy';
           modal.style.display = 'flex';
@@ -176,6 +202,7 @@
     function openMainModal(link) {
       currentLink = link;
       modalIcon.src = currentIcon;
+      modalTitle.textContent = currentName;
       modalLink.textContent = currentLink;
       copyBtn.textContent = 'Copy';
       modal.style.display = 'flex';
