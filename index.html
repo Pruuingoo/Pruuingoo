@@ -5,9 +5,34 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Plui – About Me</title>
   <style>
+    /* ---------- Page wallpaper that changes by orientation ---------- */
+    html, body { height: 100%; }
+    html {
+      /* Desktop / landscape default */
+      background: url("https://cdn.discordapp.com/attachments/1097815193611939924/1415058085227266218/837b06cad6840eafd3db75f8655d20ce.jpg?ex=68c1d30a&is=68c0818a&hm=b55b62c6b47c66cc6b58c988ae77dfbdc2db41487813d235456326cd78107bc3&")
+        no-repeat center center fixed;
+      background-size: cover;
+    }
+    @media (orientation: portrait) {
+      html {
+        /* Mobile / portrait */
+        background: url("https://cdn.discordapp.com/attachments/1097815193611939924/1415058081716506829/481e502c01bbac451059193014ea67e9.jpg?ex=68c1d309&is=68c08189&hm=c7440ba0aa3762eec989bb2549206a1ce51171014358211ee29b499544452421&")
+          no-repeat center center fixed;
+        background-size: cover;
+      }
+    }
+    @media (orientation: landscape) {
+      html {
+        background: url("https://cdn.discordapp.com/attachments/1097815193611939924/1415058085227266218/837b06cad6840eafd3db75f8655d20ce.jpg?ex=68c1d30a&is=68c0818a&hm=b55b62c6b47c66cc6b58c988ae77dfbdc2db41487813d235456326cd78107bc3&")
+          no-repeat center center fixed;
+        background-size: cover;
+      }
+    }
+
+    /* ---------- Base layout & typography ---------- */
     body {
-      background-color: #F7F0F7;
-      color: #000;
+      background: transparent;          /* keep wallpaper crisp */
+      color: #fff;                      /* all text white */
       font-family: Arial, Helvetica, sans-serif;
       max-width: 700px;
       margin: 0 auto;
@@ -19,21 +44,26 @@
 
     h1 {
       font-weight: 600;
+      letter-spacing: 2px;
       opacity: 0;
       transform: translateY(20px);
       animation: fadeUp 1s ease forwards 1.5s;
-      letter-spacing: 2px;
+      text-shadow: 0 2px 8px rgba(0,0,0,.55);
+      margin: 0 0 8px 0;
     }
 
-    /* smaller about-me text as requested */
+    /* smaller about-me text as requested (kept) */
     p {
       font-size: 0.9rem;
       opacity: 0;
       transform: translateY(20px);
       animation: fadeUp 1s ease forwards 2s;
+      margin: 0;
+      text-shadow: 0 2px 6px rgba(0,0,0,.55);
     }
 
-    .profile-container { margin: 40px 0; }
+    /* ---------- Profile ---------- */
+    .profile-container { margin: 40px 0 28px; }
     .profile-pic {
       width: 160px;
       height: 160px;
@@ -41,7 +71,11 @@
       object-fit: cover;
       display: block;
       margin: 0 auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      /* darker & more noticeable shadow */
+      box-shadow:
+        0 18px 60px rgba(0,0,0,.65),
+        0 6px 18px rgba(0,0,0,.45),
+        0 0 0 3px rgba(255,255,255,.18) inset;
       opacity: 0;
       transform: scale(0.8);
       animation: zoomIn 1s ease forwards 0.5s;
@@ -53,15 +87,32 @@
       opacity: 0;
       transform: translateY(20px);
       animation: fadeUp 1s ease forwards 1s;
+      text-shadow: 0 2px 8px rgba(0,0,0,.55);
     }
 
-    /* Social icons */
+    /* ---------- Glassy About card with blur + white inner shadow ---------- */
+    .about {
+      margin-top: 10px;
+      padding: 18px 18px 22px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.25);
+      /* subtle white inner glow around edges */
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.65),
+        inset 0 0 36px rgba(255,255,255,.14),
+        0 14px 34px rgba(0,0,0,.35);
+    }
+
+    /* ---------- Social icons ---------- */
     #socials {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 25px;
-      margin-top: 40px;
+      margin-top: 34px;
     }
     #socials a img {
       width: 40px;
@@ -69,6 +120,13 @@
       cursor: pointer;
       transform: scale(0);
       animation: popIn 0.5s ease forwards;
+      /* make icons white so they pop on dark bg */
+      filter: invert(1);
+      transition: transform .3s ease, filter .3s ease;
+    }
+    #socials a img:hover {
+      transform: scale(1.3) rotate(10deg);
+      filter: invert(1) drop-shadow(0 6px 12px rgba(0,0,0,.55));
     }
 
     /* Staggered animation delays */
@@ -88,85 +146,92 @@
     #socials a:nth-child(14) img { animation-delay: 4.8s; }
     #socials a:nth-child(15) img { animation-delay: 5s; }
 
-    #socials a img:hover {
-      transform: scale(1.3) rotate(10deg);
-      transition: 0.3s ease;
-    }
-
-    /* Modal overlay */
+    /* ---------- Modals (small menus) ---------- */
+    /* Overlay should NOT blur the wallpaper */
     .modal {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.40);    /* dim only, no blur here */
       display: none;
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      padding: 12px;
     }
 
+    /* Blurry, rounded menu card with white inner shadow */
     .modal-content {
-      background: rgba(255,255,255,0.95);
-      border: 2px solid white;
-      border-radius: 15px;
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 22px;
       padding: 20px;
-      width: 320px;
+      width: 340px;
       max-width: 92%;
       text-align: center;
+      color: #fff;
+      /* inner white edge + soft outer shadow */
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.7),
+        inset 0 0 34px rgba(255,255,255,.14),
+        0 18px 46px rgba(0,0,0,.45);
     }
 
     .modal-content img { width: 50px; height: 50px; margin-bottom: 6px; }
     .modal-title { font-weight: bold; margin-bottom: 8px; }
-    .modal-sub { color: #333; font-size: 0.92rem; margin-bottom: 14px; word-break: break-all; }
+    .modal-sub   { color: #fff; font-size: 0.92rem; margin-bottom: 14px; word-break: break-all; opacity: .95; }
 
     .modal-buttons { display: flex; flex-direction: column; gap: 12px; }
     .inline-buttons { display:flex; gap:10px; }
 
-    /* button baseline */
+    /* Buttons */
     .modal-buttons button {
       flex: 1;
       border: none;
       padding: 10px;
       font-size: 14px;
-      border-radius: 8px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: 0.18s ease;
-      color: white;
+      transition: transform .15s ease, background .2s ease, box-shadow .2s ease;
+      color: #fff;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      box-shadow: 0 8px 18px rgba(0,0,0,.28);
     }
+    .modal-buttons button:active { transform: translateY(1px) scale(.99); }
 
-    /* colored buttons */
+    /* Colored actions */
     #copyBtn { background: #6a0dad; }
     #openBtn { background: #000; }
     #closeBtn { background: #d32f2f; }
-    #closeBtn:hover { background: #b71c1c; }
+    #copyBtn:hover { box-shadow: 0 10px 22px rgba(106,13,173,.45); }
+    #openBtn:hover { box-shadow: 0 10px 22px rgba(0,0,0,.55); }
+    #closeBtn:hover { background: #b71c1c; box-shadow: 0 10px 22px rgba(183,28,28,.45); }
 
-    /* choice buttons (white/neutral) */
+    /* Choice buttons (now dark translucent so text can be white) */
     #primaryBtn, #secondaryBtn {
-      background: #fff;
-      color: #000;
-      border: 1px solid #ddd;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      background: rgba(255,255,255,0.10);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.28);
     }
-    #primaryBtn:hover, #secondaryBtn:hover { background:#f6f6f6; }
-
-    /* cancel in choice modal */
+    #primaryBtn:hover, #secondaryBtn:hover {
+      background: rgba(255,255,255,0.18);
+      box-shadow: 0 10px 22px rgba(0,0,0,.35);
+    }
     #choiceCloseBtn {
       background: #d32f2f;
+      color: #fff;
     }
     #choiceCloseBtn:hover { background:#b71c1c; }
 
-    /* small white icons */
+    /* Small white icons */
     .btn-icon { width: 16px; height: 16px; vertical-align: middle; }
 
-    /* Animations */
+    /* ---------- Animations ---------- */
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
     @keyframes zoomIn { to { opacity: 1; transform: scale(1); } }
     @keyframes popIn { from { transform: scale(0.75); opacity: 0; } to { transform: scale(1); opacity:1; } }
@@ -176,7 +241,7 @@
     #modal .modal-content { animation: popIn 0.32s cubic-bezier(.2,.9,.2,1); }
     #choiceModal .modal-content { animation: slideDown 0.36s cubic-bezier(.2,.9,.2,1); }
 
-    /* keep modal content centered on small screens */
+    /* ---------- Responsive tweaks ---------- */
     @media (max-width:420px) {
       .modal-content { padding: 16px; width: 92%; }
       .modal-sub { font-size: 0.85rem; }
@@ -190,13 +255,16 @@
     <div class="profile-name">Plui</div>
   </div>
 
-  <h1>About Me</h1>
-  <p>
-    Hey, I’m <b>Plui</b>. I’m a person who likes exploring anime, games, Discord, and random tech.  
-    I spend time messing around with Discord bots, setting up Minecraft servers, experimenting with apps, and watching anime.  
-    I also make random creative projects like videos or logos just for fun. I enjoy learning a little bit of everything  
-    and collecting knowledge along the way.
-  </p>
+  <!-- Glassy About block -->
+  <section class="about">
+    <h1>About Me</h1>
+    <p>
+      Hey, I’m <b>Plui</b>. I’m a person who likes exploring anime, games, Discord, and random tech.<br>
+      I spend time messing around with Discord bots, setting up Minecraft servers, experimenting with apps, and watching anime.<br>
+      I also make random creative projects like videos or logos just for fun. I enjoy learning a little bit of everything
+      and collecting knowledge along the way.
+    </p>
+  </section>
 
   <!-- Socials -->
   <section id="socials">
@@ -222,7 +290,7 @@
     <div class="modal-content">
       <img id="choice-icon" src="" alt="platform icon">
       <div class="modal-title" id="choice-title"></div>
-      <h3>Select Account</h3>
+      <h3 style="margin:6px 0 12px 0;">Select Account</h3>
 
       <div class="modal-buttons">
         <button id="primaryBtn">
@@ -408,4 +476,4 @@
     });
   </script>
 </body>
-</html>
+        </html>
