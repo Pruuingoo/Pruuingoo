@@ -149,16 +149,22 @@
     /* ---------- Modals (small menus) ---------- */
     /* Overlay should NOT blur the wallpaper */
     .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.40);    /* dim only, no blur here */
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 12px;
-    }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.40); /* dim only, no blur here */
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  /* remove padding so content centers perfectly */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
     /* Blurry, rounded menu card with white inner shadow */
     .modal-content {
