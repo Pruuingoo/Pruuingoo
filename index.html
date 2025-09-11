@@ -1,21 +1,19 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Plui — Links</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <meta name="theme-color" content="#1b0136">
 </head>
 <body>
 
   <!-- BACKGROUND -->
   <div id="bg-wrap" aria-hidden="true">
     <div id="background"></div>
-    <div id="color-overlay" aria-hidden="true"></div>
-    <canvas id="particles" aria-hidden="true"></canvas>
+    <div id="color-overlay"></div>
+    <canvas id="particles"></canvas>
   </div>
 
   <main class="site">
@@ -31,60 +29,58 @@
     </section>
 
     <section class="socials" aria-label="Social links">
-      <div class="grid visible-grid" id="socials-visible">
-        <button class="social-tile" data-type="link" data-name="Discord" data-link="https://discord.com/users/1090665275986296904" aria-haspopup="dialog">
-          <img class="si" src="https://cdn.simpleicons.org/discord/ffffff" alt="">
+      <div class="grid visible-grid">
+        <button class="social-tile" data-type="link" data-name="Discord" data-link="https://discord.com/users/1090665275986296904">
+          <img src="https://cdn.simpleicons.org/discord/ffffff" alt="">
           <span class="tooltip">Discord</span>
         </button>
         <button class="social-tile" data-type="multi" data-name="Instagram"
-                data-primary="https://instagram.com/pruuingoo/" data-secondary="https://instagram.com/plubinki"
-                aria-haspopup="dialog">
-          <img class="si" src="https://cdn.simpleicons.org/instagram/ffffff" alt="">
+                data-primary="https://instagram.com/pruuingoo/"
+                data-secondary="https://instagram.com/plubinki">
+          <img src="https://cdn.simpleicons.org/instagram/ffffff" alt="">
           <span class="tooltip">Instagram</span>
         </button>
-        <button class="social-tile" data-type="link" data-name="YouTube" data-link="https://youtube.com/@Pruuingoo" aria-haspopup="dialog">
-          <img class="si" src="https://cdn.simpleicons.org/youtube/ffffff" alt="">
+        <button class="social-tile" data-type="link" data-name="YouTube" data-link="https://youtube.com/@Pruuingoo">
+          <img src="https://cdn.simpleicons.org/youtube/ffffff" alt="">
           <span class="tooltip">YouTube</span>
         </button>
-        <button class="social-tile" data-type="link" data-name="AniList" data-link="https://anilist.co/user/pruuingoo" aria-haspopup="dialog">
-          <img class="si" src="https://cdn.simpleicons.org/anilist/ffffff" alt="">
+        <button class="social-tile" data-type="link" data-name="AniList" data-link="https://anilist.co/user/pruuingoo">
+          <img src="https://cdn.simpleicons.org/anilist/ffffff" alt="">
           <span class="tooltip">AniList</span>
         </button>
       </div>
 
-      <div class="controls">
-        <button id="toggle-more" class="toggle-more" aria-expanded="false">Show more ↓</button>
-      </div>
+      <button id="toggle-more" class="toggle-more" aria-expanded="false">Show more ↓</button>
 
-      <div class="grid hidden-grid" id="socials-hidden" aria-hidden="true">
-        <button class="social-tile" data-type="link" data-name="GitHub" data-link="https://github.com/Pruuingoo" aria-haspopup="dialog">
-          <img class="si" src="https://cdn.simpleicons.org/github/ffffff" alt="">
+      <div class="grid hidden-grid" aria-hidden="true">
+        <button class="social-tile" data-type="link" data-name="GitHub" data-link="https://github.com/Pruuingoo">
+          <img src="https://cdn.simpleicons.org/github/ffffff" alt="">
           <span class="tooltip">GitHub</span>
         </button>
-        <button class="social-tile" data-type="link" data-name="TikTok" data-link="https://tiktok.com/@pruuingoo" aria-haspopup="dialog">
-          <img class="si" src="https://cdn.simpleicons.org/tiktok/ffffff" alt="">
+        <button class="social-tile" data-type="link" data-name="TikTok" data-link="https://tiktok.com/@pruuingoo">
+          <img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="">
           <span class="tooltip">TikTok</span>
         </button>
-        <button class="social-tile" data-type="link" data-name="Spotify" data-link="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi" aria-haspopup="dialog">
-          <img class="si" src="https://cdn.simpleicons.org/spotify/ffffff" alt="">
+        <button class="social-tile" data-type="link" data-name="Spotify" data-link="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi">
+          <img src="https://cdn.simpleicons.org/spotify/ffffff" alt="">
           <span class="tooltip">Spotify</span>
         </button>
         <button class="social-tile" data-type="multi" data-name="Roblox"
                 data-primary="https://roblox.com/users/5279565619/profile"
-                data-secondary="https://www.roblox.com/users/8808804903/profile"
-                aria-haspopup="dialog">
-          <img class="si" src="https://cdn.simpleicons.org/roblox/ffffff" alt="">
+                data-secondary="https://www.roblox.com/users/8808804903/profile">
+          <img src="https://cdn.simpleicons.org/roblox/ffffff" alt="">
           <span class="tooltip">Roblox</span>
         </button>
-        <button class="social-tile" data-type="link" data-name="Email" data-link="mailto:pruuingoo@gmail.com" aria-haspopup="dialog">
-          <img class="si" src="https://cdn.simpleicons.org/gmail/ffffff" alt="">
+        <button class="social-tile" data-type="link" data-name="Email" data-link="mailto:pruuingoo@gmail.com">
+          <img src="https://cdn.simpleicons.org/gmail/ffffff" alt="">
           <span class="tooltip">Email</span>
         </button>
       </div>
     </section>
   </main>
 
-  <button id="catBtn" class="cat-btn" aria-haspopup="dialog">Random Cat 🐱</button>
+  <button id="catBtn" class="cat-btn">Random Cat 🐱</button>
+
   <div id="modal-overlay" class="modal-overlay" aria-hidden="true"></div>
 
   <script src="app.js" defer></script>
