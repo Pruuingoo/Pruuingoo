@@ -4,129 +4,186 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Plui — About Me</title>
+  <meta name="description" content="Plui — anime, tech, creative projects.">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg-scale:1.14;
-      --accent:rgba(124,92,255,.95);
-      --dialog-width:340px;
-      --mobile-inset:12px;
+      --bg-scale:1.16;        /* large enough so small parallax won't expose edges */
+      --accent: linear-gradient(90deg,#7A45FF,#FF6A9A);
+      --accent-2: linear-gradient(90deg,#FFB86B,#7A45FF);
+      --danger: linear-gradient(90deg,#FF6A6A,#D32F2F);
+      --dialog-w:340px;
+      --mobile-inset:14px;
+      --soft: cubic-bezier(.2,.9,.2,1);
     }
-    body{margin:0;font-family:"Inter",sans-serif;color:#fff;overflow-x:hidden}
-    a{color:inherit;text-decoration:none}
 
-    /* Background */
-    .bg-wrap{position:fixed;inset:0;z-index:-3;overflow:hidden;pointer-events:none}
-    .bg-img{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(var(--bg-scale));transition:transform .4s}
-    #particles{position:absolute;inset:0;z-index:-2}
+    /* Reset + base */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Inter",system-ui,Segoe UI,Roboto,Arial;color:#fff;background:transparent}
+    a{color:inherit}
+    button{font:inherit}
 
-    /* Layout */
+    /* Background layers */
+    .bg-wrap{position:fixed;inset:0;z-index:-4;overflow:hidden;pointer-events:none}
+    #bgImg{position:absolute;inset:0;background-position:center center;background-size:cover;transform:translate3d(0,0,0) scale(var(--bg-scale));transition:transform .45s var(--soft)}
+    #particles{position:absolute;inset:0;z-index:-3;pointer-events:none}
+    .bg-overlay{position:absolute;inset:0;mix-blend-mode:overlay;opacity:.22;background:linear-gradient(120deg, rgba(124,92,255,.18), rgba(0,150,220,.06));animation:overlayShift 12s linear infinite}
+    @keyframes overlayShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+    /* Page layout */
     .wrap{max-width:720px;margin:0 auto;padding:28px 18px;text-align:center}
-    .avatar{width:150px;height:150px;margin:0 auto;border-radius:50%;overflow:hidden}
-    .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-    .name{margin-top:12px;font-size:1.8rem;font-weight:600}
-    .subtitle{opacity:.9;font-size:.95rem}
+    .avatar{width:150px;height:150px;margin:0 auto;border-radius:50%;overflow:hidden;box-shadow:0 28px 60px rgba(0,0,0,.5)}
+    .avatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+    .name{margin-top:12px;font-size:1.9rem;font-weight:600;text-shadow:0 6px 18px rgba(0,0,0,.6)}
+    .subtitle{opacity:.95;margin-top:6px;font-size:.95rem}
 
-    /* About */
-    .about{margin:18px auto;padding:16px;border-radius:12px;background:rgba(255,255,255,.12);backdrop-filter:blur(10px)}
+    .about{margin:16px auto;padding:16px;border-radius:12px;background:rgba(255,255,255,.08);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06)}
 
     /* Socials */
     #socials{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:20px 0}
-    .social{width:56px;height:56px;border-radius:12px;display:grid;place-items:center;cursor:pointer;transition:.2s}
-    .social img{width:38px;height:38px;filter:invert(1);pointer-events:none}
-    .social:hover{transform:translateY(-5px)}
+    .social{width:56px;height:56px;border-radius:12px;display:grid;place-items:center;cursor:pointer;transition:transform .18s var(--soft);background:rgba(255,255,255,0.03)}
+    .social img{width:36px;height:36px;filter:invert(1);pointer-events:none}
+    .social:active{transform:translateY(2px)}
+    .social:hover{transform:translateY(-6px);filter:brightness(1.02)}
+    .tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);padding:6px 8px;border-radius:8px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .14s}
+    .social:hover .tooltip{opacity:1}
 
-    .hidden-links{display:none;opacity:0;transform:translateY(-8px);transition:.28s}
-    .hidden-links.show{display:flex;opacity:1;transform:translateY(0)}
-    #toggleLinks{margin-top:14px;padding:8px 14px;border-radius:8px;border:0;background:#ffffff22;color:#fff;cursor:pointer}
+    /* Hidden extras */
+    .hidden-links{display:none;opacity:0;transform:translateY(-8px);transition:opacity .28s,transform .28s}
+    .hidden-links.show{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:12px;opacity:1;transform:translateY(0)}
+    #toggleLinks{margin-top:12px;padding:8px 14px;border-radius:10px;border:0;background:linear-gradient(90deg,#ffffff11,#ffffff06);color:#fff;cursor:pointer}
 
-    /* Random cat button */
-    #catBtn{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);padding:10px 16px;border-radius:999px;border:0;
-      background:linear-gradient(90deg,#FFB86B,#7A45FF);color:#fff;font-weight:600;cursor:pointer;z-index:20}
+    /* Random Cat button */
+    #catBtn{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;padding:10px 16px;border-radius:999px;border:0;background:var(--accent-2);color:#fff;font-weight:700;cursor:pointer;z-index:60;box-shadow:0 12px 32px rgba(0,0,0,.36)}
+    #catBtn:active{transform:translateX(-50%) translateY(2px)}
 
     /* Modals */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.44);z-index:50}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.44);z-index:70;padding:18px}
     .modal[open]{display:flex}
-    .dialog{width:var(--dialog-width);max-width:calc(100% - (var(--mobile-inset)*2));
-      background:rgba(255,255,255,.14);backdrop-filter:blur(12px);padding:14px;border-radius:12px}
-    .dialog.closing{transform:translateY(18px);opacity:0;transition:.25s}
+    .dialog{width:var(--dialog-w);max-width:calc(100% - (var(--mobile-inset) * 2));background:rgba(255,255,255,.10);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,.06);box-shadow:0 26px 72px rgba(0,0,0,.55);transform-origin:center;transition:transform .26s var(--soft),opacity .22s}
+    .dialog.opening{transform:translateY(0) scale(1);opacity:1}
+    .dialog.closing{transform:translateY(18px) scale(.995);opacity:0}
+
     .dialog .title{text-align:center;font-weight:600;margin-bottom:8px}
-    .dialog .link{text-align:center;font-size:.9rem;opacity:.9;word-break:break-all}
+    .dialog .link{word-break:break-all;text-align:center;color:rgba(255,255,255,.95);font-size:.95rem;margin-bottom:8px}
 
-    .buttons{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
-    .btn{padding:8px 12px;border-radius:10px;border:0;cursor:pointer;color:#fff}
-    .btn.primary{background:linear-gradient(90deg,#7A45FF,#FF6A9A)}
-    .btn.ghost{background:#ffffff22}
-    .btn.danger{background:linear-gradient(90deg,#FF6A6A,#D32F2F)}
+    .dialog img.rounded{width:100%;height:auto;border-radius:12px;display:block;margin:6px 0}
 
-    .dialog img.rounded{width:100%;border-radius:10px;margin-bottom:10px}
+    .buttons{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+    .btn{padding:9px 12px;border-radius:10px;border:0;cursor:pointer;color:#fff;font-weight:600}
+    .btn.primary{background:var(--accent)}
+    .btn.secondary{background:linear-gradient(90deg,#ffffff11,#ffffff06)}
+    .btn.danger{background:var(--danger)}
+
+    /* small screens: inset dialogs */
+    @media (max-width:420px){
+      :root{--dialog-w:calc(100% - (var(--mobile-inset) * 2))}
+      .avatar{width:130px;height:130px}
+      .name{font-size:1.6rem}
+      #catBtn{bottom:12px;padding:8px 14px}
+    }
+
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   </style>
 </head>
 <body>
-  <div class="bg-wrap">
-    <div id="bgImg" class="bg-img"
-      style="background-image:url('https://i.postimg.cc/90TSC2zV/837b06cad6840eafd3db75f8655d20ce.jpg')"></div>
-    <canvas id="particles"></canvas>
+  <!-- Background -->
+  <div class="bg-wrap" aria-hidden="true">
+    <div id="bgImg" style="background-image:url('https://i.postimg.cc/90TSC2zV/837b06cad6840eafd3db75f8655d20ce.jpg');"></div>
+    <canvas id="particles" aria-hidden="true"></canvas>
+    <div class="bg-overlay" aria-hidden="true"></div>
   </div>
 
-  <main class="wrap">
-    <div class="avatar"><img src="https://cdn.discordapp.com/avatars/1090665275986296904/f8f924327eb08a57e42905b9ae94475d.png?size=512" alt="Plui"></div>
-    <div class="name">Plui</div>
-    <div class="subtitle">Tech explorer • Anime & creative projects</div>
+  <main class="wrap" id="main">
+    <header>
+      <div class="avatar"><img id="avatar" src="https://cdn.discordapp.com/avatars/1090665275986296904/f8f924327eb08a57e42905b9ae94475d.png?size=512" alt="Plui avatar" loading="lazy"></div>
+      <div class="name" id="displayName">Plui</div>
+      <div class="subtitle">Tech explorer • Anime & creative projects</div>
+    </header>
 
-    <section class="about">
-      <h2>About Me</h2>
-      <p>I’m <b>Plui</b>. I like exploring anime, games, Discord, and random tech.</p>
+    <section class="about" aria-labelledby="aboutHeading">
+      <h2 id="aboutHeading">About Me</h2>
+      <p>Hey — I’m <strong>Plui</strong>. I like anime, games, Discord, and random tech. I tinker and create for fun.</p>
     </section>
 
-    <nav id="socials">
+    <nav id="socials" aria-label="Social links">
       <!-- visible -->
-      <a class="social" data-link="https://discord.com/users/1090665275986296904" data-name="Discord">
-        <img src="https://simpleicons.org/icons/discord.svg">
-      </a>
-      <a class="social" data-link="https://youtube.com/@Pruuingoo" data-name="YouTube">
-        <img src="https://simpleicons.org/icons/youtube.svg">
-      </a>
-      <a class="social" data-link="https://anilist.co/user/pruuingoo" data-name="AniList">
-        <img src="https://simpleicons.org/icons/anilist.svg">
-      </a>
+      <button class="social" data-link="https://discord.com/users/1090665275986296904" data-name="Discord" aria-label="Discord" type="button">
+        <img src="https://simpleicons.org/icons/discord.svg" alt=""><span class="tooltip">Discord</span>
+      </button>
 
-      <div id="moreLinks" class="hidden-links">
-        <a class="social" data-link="https://github.com/Pruuingoo" data-name="GitHub"><img src="https://simpleicons.org/icons/github.svg"></a>
-        <a class="social" data-link="https://tiktok.com/@pruuingoo" data-name="TikTok"><img src="https://simpleicons.org/icons/tiktok.svg"></a>
-        <a class="social" data-link="mailto:pruuingoo@gmail.com" data-name="Email"><img src="https://simpleicons.org/icons/maildotru.svg"></a>
+      <button class="social" data-link="instagram" data-name="Instagram" data-primary="https://instagram.com/pruuingoo/" data-secondary="https://instagram.com/plubinki" aria-label="Instagram" type="button">
+        <img src="https://simpleicons.org/icons/instagram.svg" alt=""><span class="tooltip">Instagram</span>
+      </button>
+
+      <button class="social" data-link="https://youtube.com/@Pruuingoo" data-name="YouTube" aria-label="YouTube" type="button">
+        <img src="https://simpleicons.org/icons/youtube.svg" alt=""><span class="tooltip">YouTube</span>
+      </button>
+
+      <button class="social" data-link="https://anilist.co/user/pruuingoo" data-name="AniList" aria-label="AniList" type="button">
+        <img src="https://simpleicons.org/icons/anilist.svg" alt=""><span class="tooltip">AniList</span>
+      </button>
+
+      <!-- hidden -->
+      <div id="moreLinks" class="hidden-links" aria-hidden="true">
+        <button class="social" data-link="https://github.com/Pruuingoo" data-name="GitHub" type="button"><img src="https://simpleicons.org/icons/github.svg" alt=""><span class="tooltip">GitHub</span></button>
+        <button class="social" data-link="https://tiktok.com/@pruuingoo" data-name="TikTok" type="button"><img src="https://simpleicons.org/icons/tiktok.svg" alt=""><span class="tooltip">TikTok</span></button>
+        <button class="social" data-link="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi" data-name="Spotify" type="button"><img src="https://simpleicons.org/icons/spotify.svg" alt=""><span class="tooltip">Spotify</span></button>
+        <button class="social" data-link="roblox" data-name="Roblox" data-primary="https://roblox.com/users/5279565619/profile" data-secondary="https://www.roblox.com/users/8808804903/profile" type="button"><img src="https://simpleicons.org/icons/roblox.svg" alt=""><span class="tooltip">Roblox</span></button>
+        <button class="social" data-link="mailto:pruuingoo@gmail.com" data-name="Email" type="button"><img src="https://simpleicons.org/icons/maildotru.svg" alt=""><span class="tooltip">Email</span></button>
       </div>
-      <button id="toggleLinks">Show more ↓</button>
+
+      <button id="toggleLinks" aria-expanded="false" type="button">Show more ↓</button>
     </nav>
   </main>
 
-  <button id="catBtn">Random Cat 🐱</button>
+  <!-- Random cat -->
+  <button id="catBtn" aria-label="Random cat" type="button">Random Cat 🐱</button>
 
-  <!-- Main Modal -->
-  <div id="mainModal" class="modal">
-    <div class="dialog">
-      <div class="title" id="mainTitle"></div>
-      <div class="link" id="modalLink"></div>
+  <!-- Choice modal (primary/secondary) -->
+  <div id="choiceModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="dialog" role="document">
+      <div class="title" id="choiceTitle">Choose account</div>
       <div class="buttons">
-        <button id="copyBtn" class="btn primary">Copy</button>
-        <button id="openBtn" class="btn ghost">Open</button>
-        <button id="closeBtn" class="btn danger">Close</button>
+        <button id="primaryBtn" class="btn primary" type="button">Primary</button>
+        <button id="secondaryBtn" class="btn secondary" type="button">Secondary</button>
+      </div>
+      <div class="buttons">
+        <button id="choiceCancel" class="btn danger" type="button">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- Cat Modal -->
-  <div id="catModal" class="modal">
-    <div class="dialog">
-      <div class="title">Random Cat</div>
-      <img id="catImage" class="rounded" alt="cat">
+  <!-- Main modal -->
+  <div id="mainModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="dialog" role="document">
+      <div class="title" id="mainTitle">Title</div>
+      <div class="link" id="modalLink">link</div>
       <div class="buttons">
-        <button id="catNew" class="btn primary">New Cat</button>
-        <button id="catClose" class="btn danger">Close</button>
+        <button id="copyBtn" class="btn primary" type="button">Copy</button>
+        <button id="openBtn" class="btn secondary" type="button">Open</button>
+      </div>
+      <div class="buttons">
+        <button id="closeBtn" class="btn danger" type="button">Close</button>
       </div>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <!-- Cat modal -->
+  <div id="catModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="dialog" role="document">
+      <div class="title" id="catTitle">Random Cat</div>
+      <img id="catImage" class="rounded" alt="Random cat image" src="" />
+      <div class="buttons">
+        <button id="catOpen" class="btn primary" type="button">Open in new tab</button>
+        <button id="catNew" class="btn secondary" type="button">New Cat</button>
+      </div>
+      <div class="buttons">
+        <button id="catClose" class="btn danger" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
 </body>
 </html>
