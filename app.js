@@ -1,291 +1,325 @@
-/* app.js — make sure this file sits next to index.html and the <script> uses defer */
+/* app.js — improved & accessible interactions
+   Features:
+   - portrait/landscape dynamic background switching (keeps zoom so no white edges)
+   - smooth parallax using requestAnimationFrame and lerp
+   - deviceorientation tilt fallback (if available)
+   - drifting glowing particles on canvas
+   - socials grid with multi-account choice modal, copy/open
+   - Random Cat modal (fetch from aws.random.cat/meow) with new image & open-in-tab
+   - modal focus management and simple focus trap
+*/
 
-/* CONFIG: use your postimg direct links already provided */
-const CONFIG = {
-  bg: {
-    desktop: 'https://i.postimg.cc/90TSC2zV/837b06cad6840eafd3db75f8655d20ce.jpg',
-    mobile:  'https://i.postimg.cc/MTg4CH6d/481e502c01bbac451059193014ea67e9.jpg'
-  },
-  particles: { count: 60, maxSize: 2.2, speed: 0.22 },
-  parallax: { maxOffset: 14, ease: 0.08 },
-  catApi: 'https://aws.random.cat/meow' // no key required
-};
+(() => {
+  /* ---------- CONFIG ---------- */
+  const LANDSCAPE = 'https://i.postimg.cc/90TSC2zV/837b06cad6840eafd3db75f8655d20ce.jpg';
+  const PORTRAIT  = 'https://i.postimg.cc/MTg4CH6d/481e502c01bbac451059193014ea67e9.jpg';
+  const BG_SCALE = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bg-scale')) || 1.12;
+  const MAX_TRANSLATE = 40; // px
+  const PARTICLE_COUNT = Math.round(Math.min(120, Math.max(36, (window.innerWidth * window.innerHeight) / 12000)));
 
-/* small helpers */
-const $ = (s,ctx=document) => ctx.querySelector(s);
-const $$ = (s,ctx=document) => Array.from(ctx.querySelectorAll(s));
-const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
-const debounce = (fn, ms=120) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(this,a), ms); }; };
+  /* ---------- ELEMENTS ---------- */
+  const bg = document.getElementById('background');
+  const particlesCanvas = document.getElementById('particles');
+  const modalOverlay = document.getElementById('modal-overlay');
+  const catBtn = document.getElementById('catBtn');
+  const toggleMore = document.getElementById('toggle-more');
+  const hiddenGrid = document.getElementById('socials-hidden');
+  const socialTiles = document.querySelectorAll('.social-tile');
 
-/* ---------- Background lazy + orientation ---------- */
-(function bgInit(){
-  const bg = $('#bgImg');
-  if(!bg) return;
-  function setBg(){
-    const isPortrait = window.matchMedia('(orientation:portrait)').matches;
-    bg.style.backgroundImage = `url("${isPortrait ? CONFIG.bg.mobile : CONFIG.bg.desktop}")`;
-  }
-  setBg();
-  window.addEventListener('resize', debounce(setBg, 160));
-  window.addEventListener('orientationchange', setBg);
-})();
-
-/* ---------- Particles (lightweight canvas) ---------- */
-(function particles(){
-  const canvas = $('#particles');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W=innerWidth, H=innerHeight, arr=[];
-  const cfg = CONFIG.particles;
-  function rand(a,b){return Math.random()*(b-a)+a;}
-  function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; arr=[]; for(let i=0;i<cfg.count;i++) arr.push({x:rand(0,W),y:rand(0,H),vx:rand(-cfg.speed,cfg.speed),vy:rand(-cfg.speed,cfg.speed),r:rand(.6,cfg.maxSize),a:rand(.12,.32)}); }
-  function step(){ ctx.clearRect(0,0,W,H); for(const p of arr){ p.x+=p.vx; p.y+=p.vy; if(p.x>W+10)p.x=-10; if(p.x<-10)p.x=W+10; if(p.y>H+10)p.y=-10; if(p.y<-10)p.y=H+10; ctx.beginPath(); ctx.fillStyle=`rgba(255,255,255,${p.a})`; ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); } requestAnimationFrame(step); }
-  window.addEventListener('resize', debounce(resize, 200));
-  resize(); step();
-})();
-
-/* ---------- Parallax (mouse, scroll, optional tilt) ---------- */
-(function parallax(){
-  const bg = $('#bgImg');
-  if(!bg) return;
-  let tx=0, ty=0, x=0, y=0;
-  const max = CONFIG.parallax.maxOffset;
-  const ease = CONFIG.parallax.ease;
-
-  // mouse
-  window.addEventListener('mousemove', (e) => {
-    const cx = innerWidth/2, cy = innerHeight/2;
-    const dx = (e.clientX - cx)/cx, dy = (e.clientY - cy)/cy;
-    tx = clamp(-dx * max, -max, max);
-    ty = clamp(-dy * max, -max, max);
-  }, { passive: true });
-
-  // slight scroll influence
-  window.addEventListener('scroll', () => {
-    const s = window.scrollY || window.pageYOffset;
-    ty = clamp(ty + -s * 0.0006, -max/1.6, max/1.6);
-  }, { passive: true });
-
-  // device tilt (permission-aware)
-  if('DeviceOrientationEvent' in window){
-    const handler = (ev) => {
-      if(typeof ev.gamma === 'number' && typeof ev.beta === 'number'){
-        const gx = clamp(ev.gamma / 45, -1, 1), by = clamp(ev.beta / 60, -1, 1);
-        tx = clamp(-gx * max * 0.9, -max, max);
-        ty = clamp(-by * max * 0.9, -max, max);
-      }
-    };
-    if(typeof DeviceOrientationEvent.requestPermission === 'function'){
-      const ask = () => {
-        DeviceOrientationEvent.requestPermission().then(resp => {
-          if(resp === 'granted') window.addEventListener('deviceorientation', handler, true);
-        }).catch(()=>{}).finally(()=>document.removeEventListener('click', ask));
-      };
-      document.addEventListener('click', ask, { once: true });
-    } else {
-      window.addEventListener('deviceorientation', handler, true);
+  /* ---------- BACKGROUND IMAGE SWITCH ---------- */
+  function chooseBg() {
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const chosen = isPortrait ? PORTRAIT : LANDSCAPE;
+    if (!bg.style.backgroundImage || !bg.style.backgroundImage.includes(chosen)) {
+      bg.style.backgroundImage = `url("${chosen}")`;
     }
   }
+  chooseBg();
+  window.addEventListener('resize', chooseBg);
 
-  (function loop(){
-    x += (tx - x) * ease; y += (ty - y) * ease;
-    const scale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bg-scale')) || 1.16;
-    bg.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
-    requestAnimationFrame(loop);
-  })();
-})();
+  /* ---------- SMOOTH PARALLAX ---------- */
+  let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
+  const lerp = (a,b,t) => a + (b-a) * t;
 
-/* ---------- UI: socials, modals, show more, cat ---------- */
-(function ui(){
-  const socials = $$('#socials .social');
-  const moreLinks = $('#moreLinks');
-  const toggleBtn = $('#toggleLinks');
-
-  const choiceModal = $('#choiceModal');
-  const mainModal = $('#mainModal');
-  const catModal = $('#catModal');
-
-  // main modal elements
-  const mainTitle = $('#mainTitle');
-  const modalLink = $('#modalLink');
-  const copyBtn = $('#copyBtn');
-  const openBtn = $('#openBtn');
-  const closeBtn = $('#closeBtn');
-
-  // choice modal elements
-  const choiceTitle = $('#choiceTitle');
-  const primaryBtn = $('#primaryBtn');
-  const secondaryBtn = $('#secondaryBtn');
-  const choiceCancel = $('#choiceCancel');
-
-  // cat modal elements
-  const catBtn = $('#catBtn');
-  const catImage = $('#catImage');
-  const catOpen = $('#catOpen');
-  const catNew = $('#catNew');
-  const catClose = $('#catClose');
-  const catTitle = $('#catTitle');
-
-  let selectedEl = null;
-  let currentLink = '';
-
-  /* Show more toggle */
-  toggleBtn.addEventListener('click', () => {
-    const showing = moreLinks.classList.toggle('show');
-    toggleBtn.textContent = showing ? 'Show less ↑' : 'Show more ↓';
-    toggleBtn.setAttribute('aria-expanded', showing ? 'true' : 'false');
-    moreLinks.setAttribute('aria-hidden', showing ? 'false' : 'true');
-  });
-
-  /* Social clicks */
-  socials.forEach((el, idx) => {
-    // staggered icon opacity for a nicer entrance
-    const img = el.querySelector('img');
-    if(img) setTimeout(()=> img.style.opacity = 1, 100 * idx);
-
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      selectedEl = el;
-      const link = (el.dataset.link || '').trim();
-      const name = el.dataset.name || link;
-      currentLink = link;
-
-      // if element has primary/secondary data attributes -> show choice modal
-      if(el.dataset.primary || el.dataset.secondary || ['instagram','roblox'].includes(link)){
-        choiceTitle.textContent = name;
-        showModal(choiceModal);
-      } else {
-        mainTitle.textContent = name;
-        modalLink.textContent = link || '(no link)';
-        showModal(mainModal);
-      }
-    });
-
-    el.addEventListener('keydown', (ev) => { if(ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); el.click(); }});
-  });
-
-  /* Choice modal handlers */
-  primaryBtn.addEventListener('click', () => {
-    if(!selectedEl) return;
-    currentLink = selectedEl.dataset.primary || selectedEl.dataset.link || '';
-    openMainFromChoice();
-  });
-  secondaryBtn.addEventListener('click', () => {
-    if(!selectedEl) return;
-    currentLink = selectedEl.dataset.secondary || selectedEl.dataset.link || '';
-    openMainFromChoice();
-  });
-  choiceCancel.addEventListener('click', () => hideModal(choiceModal));
-
-  function openMainFromChoice(){
-    hideModal(choiceModal);
-    mainTitle.textContent = selectedEl.dataset.name || '';
-    modalLink.textContent = currentLink || '(no link)';
-    showModal(mainModal);
+  function setTargetFromMouse(e){
+    const nx = (e.clientX / window.innerWidth - 0.5) * 2;
+    const ny = (e.clientY / window.innerHeight - 0.5) * 2;
+    targetX = nx * MAX_TRANSLATE;
+    targetY = ny * MAX_TRANSLATE;
   }
 
-  /* Main modal actions */
-  copyBtn.addEventListener('click', async () => {
-    if(!currentLink) return;
-    try{
-      await navigator.clipboard.writeText(currentLink);
-      const old = copyBtn.textContent;
-      copyBtn.textContent = 'Copied';
-      setTimeout(()=> copyBtn.textContent = old, 1100);
-    } catch(e){
-      copyBtn.textContent = 'Failed';
-      setTimeout(()=> copyBtn.textContent = 'Copy', 1100);
+  function setTargetFromScroll(){
+    // subtle vertical offset when scrolled
+    const s = (window.scrollY || window.pageYOffset) / (document.body.scrollHeight - window.innerHeight || 1);
+    targetY = (s - 0.5) * 12; // small effect
+  }
+  window.addEventListener('scroll', setTargetFromScroll, {passive:true});
+
+  window.addEventListener('mousemove', setTargetFromMouse);
+
+  // device orientation (tilt)
+  window.addEventListener('deviceorientation', (ev) => {
+    // gamma = left-right tilt, beta = front-back
+    if (typeof ev.gamma === 'number' && typeof ev.beta === 'number') {
+      const gx = Math.max(-30, Math.min(30, ev.gamma));
+      const by = Math.max(-30, Math.min(30, ev.beta));
+      targetX = (gx / 30) * (MAX_TRANSLATE * 0.9);
+      targetY = (by / 30) * (MAX_TRANSLATE * 0.6);
     }
-  });
+  }, true);
 
-  openBtn.addEventListener('click', () => {
-    if(!currentLink) return;
-    try {
-      // mailto should work with window.location, but window.open also handles it
-      window.open(currentLink, '_blank', 'noopener');
-    } catch(e){}
-  });
+  function rafLoop(){
+    currentX = lerp(currentX, targetX, 0.12);
+    currentY = lerp(currentY, targetY, 0.12);
 
-  closeBtn.addEventListener('click', () => hideModal(mainModal));
+    // set transform with scale so the image remains zoomed
+    bg.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(${BG_SCALE})`;
 
-  /* Cat modal */
-  async function fetchCat(){
-    catTitle.textContent = 'Loading...';
-    catImage.src = '';
-    try{
-      const res = await fetch(CONFIG.catApi);
-      const data = await res.json();
-      if(data && data.file){
-        catImage.src = data.file;
-        catImage.alt = 'Random cat';
-        catTitle.textContent = 'Random Cat';
-        catOpen.onclick = () => { if(data.file) window.open(data.file, '_blank', 'noopener'); };
-      } else {
-        catTitle.textContent = 'No image returned';
-        catImage.alt = 'No cat';
-      }
-    } catch(err){
-      catTitle.textContent = 'Failed to load';
-      catImage.alt = 'Failed';
-      console.error('cat fetch error', err);
+    requestAnimationFrame(rafLoop);
+  }
+  rafLoop();
+
+  /* ---------- PARTICLES ---------- */
+  const ctx = particlesCanvas.getContext('2d');
+  function resizeCanvas() {
+    particlesCanvas.width = window.innerWidth;
+    particlesCanvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+
+  let particles = [];
+  function initParticles(){
+    particles = [];
+    for (let i=0;i<PARTICLE_COUNT;i++){
+      const size = (Math.random() * 2.6) + 0.6;
+      particles.push({
+        x: Math.random() * particlesCanvas.width,
+        y: Math.random() * particlesCanvas.height,
+        r: size,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: (Math.random() - 0.5) * 0.2,
+        alpha: 0.2 + Math.random() * 0.8
+      });
     }
   }
+  initParticles();
 
-  catBtn.addEventListener('click', () => { showModal(catModal); fetchCat(); });
-  catNew.addEventListener('click', fetchCat);
-  catClose.addEventListener('click', () => hideModal(catModal));
-  catOpen.addEventListener('click', () => { if(catImage.src) window.open(catImage.src, '_blank', 'noopener'); });
+  function drawParticles(){
+    ctx.clearRect(0,0,particlesCanvas.width, particlesCanvas.height);
+    for (let p of particles){
+      p.x += p.vx;
+      p.y += p.vy;
+      // wrap-around
+      if (p.x < -10) p.x = particlesCanvas.width + 10;
+      if (p.x > particlesCanvas.width + 10) p.x = -10;
+      if (p.y < -10) p.y = particlesCanvas.height + 10;
+      if (p.y > particlesCanvas.height + 10) p.y = -10;
 
-  /* Overlay click closes modal(s) */
-  $$('.modal').forEach(m => {
-    m.addEventListener('click', (ev) => {
-      if(ev.target === m) hideModal(m);
-    });
-  });
-
-  /* ESC closes */
-  document.addEventListener('keydown', (ev) => {
-    if(ev.key === 'Escape'){
-      hideModal(mainModal); hideModal(choiceModal); hideModal(catModal);
+      ctx.beginPath();
+      ctx.globalAlpha = Math.min(1, p.alpha);
+      ctx.fillStyle = 'rgba(255,255,255,1)';
+      ctx.shadowColor = 'rgba(255,255,255,0.85)';
+      ctx.shadowBlur = Math.max(4, p.r * 6);
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
     }
-  });
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
 
-  /* show/hide helpers with slide-down close animation & focus management */
+  /* ---------- MODAL SYSTEM ---------- */
   let lastFocused = null;
-  function showModal(modalEl){
-    lastFocused = document.activeElement;
-    modalEl.setAttribute('open','');
-    modalEl.setAttribute('aria-hidden','false');
-    const dlg = modalEl.querySelector('.dialog');
-    if(dlg){
-      dlg.classList.remove('closing');
-      // small entrance transform
-      dlg.style.transform = 'translateY(0) scale(1)';
-      dlg.style.opacity = '1';
-    }
-    // focus first focusable element inside modal
-    const focusable = modalEl.querySelector('button, [tabindex], a[href]');
-    if(focusable) focusable.focus();
+
+  function closeModal() {
+    if (!modalOverlay.opened) return;
+    modalOverlay.innerHTML = '';
+    modalOverlay.style.display = 'none';
+    modalOverlay.setAttribute('aria-hidden', 'true');
+    modalOverlay.opened = false;
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+    lastFocused = null;
+    document.removeEventListener('keydown', handleKeydown);
   }
 
-  function hideModal(modalEl){
-    if(!modalEl || !modalEl.hasAttribute('open')) return;
-    const dlg = modalEl.querySelector('.dialog');
-    if(dlg){
-      dlg.classList.add('closing');
-      // remove open after animation
-      setTimeout(()=> {
-        modalEl.removeAttribute('open');
-        modalEl.setAttribute('aria-hidden','true');
-        dlg.classList.remove('closing');
-        // restore focus
-        if(lastFocused && lastFocused.focus) lastFocused.focus();
-      }, 260);
-    } else {
-      modalEl.removeAttribute('open');
-      modalEl.setAttribute('aria-hidden','true');
-      if(lastFocused && lastFocused.focus) lastFocused.focus();
+  function handleKeydown(e){
+    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key === 'Tab') {
+      // simple focus trap
+      const focusables = modalOverlay.querySelectorAll('button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])');
+      if (focusables.length === 0) return;
+      const first = focusables[0], last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus(); e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus(); e.preventDefault();
+      }
     }
   }
+
+  function openModal({title = '', html = '', onOpen = null}) {
+    lastFocused = document.activeElement;
+    modalOverlay.innerHTML = '';
+    modalOverlay.style.display = 'flex';
+    modalOverlay.setAttribute('aria-hidden', 'false');
+    modalOverlay.opened = true;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <h2>${escapeHtml(title)}</h2>
+      <div class="content">${html}</div>
+    `;
+    modalOverlay.appendChild(modal);
+
+    // click outside closes
+    setTimeout(()=> { // small timeout to let paint happen
+      modalOverlay.addEventListener('click', overlayClick);
+    }, 10);
+
+    // focus first interactive element
+    const firstBtn = modal.querySelector('button, [href], input, textarea, select, [tabindex]');
+    if (firstBtn) firstBtn.focus();
+
+    document.addEventListener('keydown', handleKeydown);
+    if (onOpen) onOpen(modal);
+  }
+
+  function overlayClick(e){
+    if (e.target === modalOverlay) closeModal();
+  }
+
+  // HTML-escape helper for tiny safety
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  /* ---------- SOCIAL BEHAVIOR ---------- */
+  function openLinkModal(name, link) {
+    openModal({
+      title: name,
+      html: `
+        <p style="word-break:break-word">${escapeHtml(link)}</p>
+        <div class="modal-actions">
+          <button class="btn btn-frost" id="copyLink">Copy</button>
+          <button class="btn btn-gradient" id="openLink">Open</button>
+          <button class="btn btn-red" id="closeModal">Close</button>
+        </div>
+      `,
+      onOpen(modal){
+        modal.querySelector('#copyLink').addEventListener('click', async (ev) => {
+          try {
+            await navigator.clipboard.writeText(link);
+            const btn = ev.currentTarget; const prev = btn.textContent;
+            btn.textContent = 'Copied';
+            setTimeout(()=> btn.textContent = prev, 1400);
+          } catch (err){
+            alert('Unable to copy. Please copy manually: ' + link);
+          }
+        });
+        modal.querySelector('#openLink').addEventListener('click', () => {
+          window.open(link, '_blank', 'noopener');
+        });
+        modal.querySelector('#closeModal').addEventListener('click', closeModal);
+      }
+    });
+  }
+
+  function openChoiceModal(name, primary, secondary) {
+    openModal({
+      title: name,
+      html: `
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <button class="btn btn-gradient" id="choosePrimary">Primary</button>
+          <button class="btn btn-gradient" id="chooseSecondary">Secondary</button>
+          <button class="btn btn-red" id="cancelChoice">Cancel</button>
+        </div>`,
+      onOpen(modal){
+        modal.querySelector('#choosePrimary').addEventListener('click', () => { closeModal(); openLinkModal(`${name} (Primary)`, primary); });
+        modal.querySelector('#chooseSecondary').addEventListener('click', () => { closeModal(); openLinkModal(`${name} (Secondary)`, secondary); });
+        modal.querySelector('#cancelChoice').addEventListener('click', closeModal);
+      }
+    });
+  }
+
+  socialTiles.forEach(btn => {
+    btn.addEventListener('click', (ev) => {
+      const t = btn.dataset.type;
+      const name = btn.dataset.name || btn.getAttribute('aria-label') || 'Link';
+      if (t === 'link') {
+        openLinkModal(name, btn.dataset.link);
+      } else if (t === 'multi') {
+        openChoiceModal(name, btn.dataset.primary, btn.dataset.secondary);
+      } else {
+        // fallback
+        openLinkModal(name, btn.dataset.link || btn.dataset.primary || '#');
+      }
+    });
+  });
+
+  /* ---------- SHOW MORE TOGGLE ---------- */
+  let expanded = false;
+  toggleMore.addEventListener('click', () => {
+    expanded = !expanded;
+    toggleMore.setAttribute('aria-expanded', String(expanded));
+    if (expanded) {
+      hiddenGrid.classList.remove('collapsed');
+      hiddenGrid.setAttribute('aria-hidden','false');
+      toggleMore.textContent = 'Show less ↑';
+      // scroll into view on mobile to make expansion visible
+      setTimeout(()=> hiddenGrid.scrollIntoView({behavior:'smooth', block:'center'}), 220);
+    } else {
+      hiddenGrid.classList.add('collapsed');
+      hiddenGrid.setAttribute('aria-hidden','true');
+      toggleMore.textContent = 'Show more ↓';
+    }
+  });
+
+  /* ---------- RANDOM CAT ---------- */
+  async function fetchCatAndOpen(){
+    openModal({ title:'Random Cat', html: `<p>Loading…</p>` });
+    try {
+      const res = await fetch('https://aws.random.cat/meow');
+      const json = await res.json();
+      const url = json?.file || '';
+      if (!url) throw new Error('No image returned');
+      // replace modal content
+      openModal({
+        title:'Random Cat',
+        html: `
+          <img src="${escapeHtml(url)}" alt="Random cat" class="modal-img" />
+          <div class="modal-actions">
+            <button class="btn btn-gradient" id="openTab">Open in new tab</button>
+            <button class="btn btn-frost" id="newCat">New Cat</button>
+            <button class="btn btn-red" id="closeNow">Close</button>
+          </div>
+        `,
+        onOpen(modal){
+          modal.querySelector('#openTab').addEventListener('click', () => window.open(url, '_blank', 'noopener'));
+          modal.querySelector('#newCat').addEventListener('click', () => { closeModal(); fetchCatAndOpen(); });
+          modal.querySelector('#closeNow').addEventListener('click', closeModal);
+        }
+      });
+    } catch (err) {
+      openModal({ title:'Random Cat', html: `<p>Couldn't fetch a cat. Try again.</p><div class="modal-actions"><button class="btn btn-frost" id="retry">Retry</button><button class="btn btn-red" id="close">Close</button></div>`,
+        onOpen(modal){
+          modal.querySelector('#retry').addEventListener('click', () => { closeModal(); fetchCatAndOpen(); });
+          modal.querySelector('#close').addEventListener('click', closeModal);
+        }
+      });
+    }
+  }
+  catBtn.addEventListener('click', () => { fetchCatAndOpen(); });
+
+  /* ---------- MODAL CLOSE on overlay or escape handled above ---------- */
+  // Clicking outside the modal will close; escape handled in keydown.
+
+  /* ---------- INITIALIZE ---------- */
+  chooseBg();
+
+  /* ---------- HELPER: preload bg images for smoother switch ---------- */
+  const preload = (url) => { const i = new Image(); i.src = url; };
+  preload(LANDSCAPE); preload(PORTRAIT);
 
 })();
