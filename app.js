@@ -6,8 +6,8 @@
 /* ---------- Config ---------- */
 const CONFIG = {
   bg: {
-    desktop: 'https://cdn.discordapp.com/attachments/1097815193611939924/1415058085227266218/837b06cad6840eafd3db75f8655d20ce.jpg',
-    mobile:  'https://cdn.discordapp.com/attachments/1097815193611939924/1415058081716506829/481e502c01bbac451059193014ea67e9.jpg'
+    desktop: 'https://i.postimg.cc/90TSC2zV/837b06cad6840eafd3db75f8655d20ce.jpg',
+    mobile:  'https://i.postimg.cc/MTg4CH6d/481e502c01bbac451059193014ea67e9.jpg'
   },
   particles: { count: 70, maxSize: 2.2, speed: 0.25 },
   // optional: set to false to disable device tilt
