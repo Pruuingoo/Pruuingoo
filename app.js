@@ -1,472 +1,426 @@
-/* app.js
-   All interactive behaviour: parallax, orientation swap, particles,
-   socials, modals, Random Cat fetch, copy links, focus management.
+// app.js
+/* Main interactive JS for parallax, particles, socials, modals, and accessibility.
+   Drop into same folder as index.html + styles.css.
 */
 
 (() => {
-  // --- Config / static assets ---
-  const landscape = 'https://i.postimg.cc/90TSC2zV/837b06cad6840eafd3db75f8655d20ce.jpg';
-  const portrait  = 'https://i.postimg.cc/MTg4CH6d/481e502c01bbac451059193014ea67e9.jpg';
-  const avatarUrl = 'https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png';
-  const randomCatApi = 'https://aws.random.cat/meow';
+  // --- Config & data ---
+  const landscapeImg = "https://i.postimg.cc/90TSC2zV/837b06cad6840eafd3db75f8655d20ce.jpg";
+  const portraitImg  = "https://i.postimg.cc/MTg4CH6d/481e502c01bbac451059193014ea67e9.jpg";
 
-  // --- Build DOM shell (if you already have HTML omit this and adapt selectors) ---
-  // For safety, create minimal DOM if not present. If your index.html already has structure, this will not break.
-  const ensure = () => {
-    if (document.getElementById('app')) return;
-    const app = document.createElement('div'); app.id = 'app';
-    document.body.appendChild(app);
-    app.innerHTML = `
-      <div class="bg-wrap" aria-hidden="true">
-        <div id="bgImage" class="bg-image"></div>
-        <div class="bg-overlay"></div>
-        <canvas id="particles" class="particles-canvas"></canvas>
-      </div>
+  const socials = [
+    { id: "discord", name: "Discord", url: "https://discord.com/users/1090665275986296904", icon: discordSVG() , primaryVisible: true },
+    { id: "instagram", name: "Instagram", multi: [
+        { label: "Primary", url: "https://instagram.com/pruuingoo/" },
+        { label: "Secondary", url: "https://instagram.com/plubinki" }
+      ], icon: instagramSVG(), primaryVisible: true, multiChoice: true },
+    { id: "youtube", name: "YouTube", url: "https://youtube.com/@Pruuingoo", icon: youtubeSVG(), primaryVisible: true },
+    { id: "anilist", name: "AniList", url: "https://anilist.co/user/pruuingoo", icon: anilistSVG(), primaryVisible: true },
 
-      <div class="container">
-        <div class="avatar" id="avatar"><img src="${avatarUrl}" alt="Plui avatar"/></div>
-        <div class="title">Plui</div>
-        <div class="subtitle">Tech explorer • Anime & creative projects</div>
+    // extras
+    { id: "github", name: "GitHub", url: "https://github.com/Pruuingoo", icon: githubSVG(), primaryVisible: false },
+    { id: "tiktok", name: "TikTok", url: "https://tiktok.com/@pruuingoo", icon: tiktokSVG(), primaryVisible: false },
+    { id: "spotify", name: "Spotify", url: "https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi", icon: spotifySVG(), primaryVisible: false },
+    { id: "roblox", name: "Roblox", multi: [
+        { label: "Primary", url: "https://roblox.com/users/5279565619/profile" },
+        { label: "Secondary", url: "https://www.roblox.com/users/8808804903/profile" }
+      ], icon: robloxSVG(), primaryVisible: false, multiChoice: true },
+    { id: "email", name: "Email", url: "mailto:pruuingoo@gmail.com", icon: mailSVG(), primaryVisible: false }
+  ];
 
-        <div class="card" id="aboutCard"><p>Hey — I’m Plui. I like anime, games, Discord, and random tech. I tinker and create for fun.</p></div>
+  // DOM refs
+  const bgImageEl = document.getElementById("bg-image");
+  const particleCanvas = document.getElementById("particle-canvas");
+  const gradientOverlay = document.getElementById("gradient-overlay");
+  const socialGrid = document.getElementById("social-grid");
+  const extraGrid = document.getElementById("extra-grid");
+  const toggleBtn = document.getElementById("toggle-more");
+  const modalRoot = document.getElementById("modal-root");
+  const pageRoot = document.getElementById("page-root");
+  const avatar = document.getElementById("avatar");
 
-        <div class="socials" id="socialsRow"></div>
-        <div style="text-align:center;margin-top:8px;">
-          <button class="show-more" id="toggleMore" aria-expanded="false">Show more <span class="show-arrow">↓</span></button>
-        </div>
-        <div class="hidden-socials" id="hiddenSocials"></div>
-      </div>
+  // Keep track of focus return
+  let lastActiveElementBeforeModal = null;
 
-      <button class="cat-btn" id="catBtn">Random Cat 🐱</button>
+  // --- Image switching and safe zoom ---
+  function setBgForAspect() {
+    // If portrait-ish, use portrait image
+    // Use window.matchMedia for orientation *and* fallback to aspect-ratio test
+    const isPortrait = window.matchMedia && window.matchMedia("(orientation: portrait)").matches
+      ? true
+      : window.innerHeight / window.innerWidth > 1.05;
 
-      <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true"></div>
-    `;
-  };
-  ensure();
-
-  // --- Elements ---
-  const bgWrap = document.querySelector('.bg-wrap');
-  const bgImage = document.getElementById('bgImage');
-  const overlay = document.querySelector('.bg-overlay');
-  const canvas = document.getElementById('particles');
-  const socialsRow = document.getElementById('socialsRow');
-  const hiddenSocials = document.getElementById('hiddenSocials');
-  const toggleMoreBtn = document.getElementById('toggleMore');
-  const catBtn = document.getElementById('catBtn');
-  const modalBackdrop = document.getElementById('modalBackdrop');
-  const avatarEl = document.getElementById('avatar');
-
-  // set initial bg image depending on orientation
-  function updateBgForOrientation(){
-    const tall = window.innerHeight >= window.innerWidth;
-    bgImage.style.backgroundImage = `url(${tall ? portrait : landscape})`;
-    // scale slightly more on portrait so movement never shows edges
-    bgImage.style.transform = `scale(${tall ? 1.18 : 1.12}) translate3d(0,0,0)`;
+    const chosen = isPortrait ? portraitImg : landscapeImg;
+    if (bgImageEl.style.backgroundImage.indexOf(chosen) === -1) {
+      bgImageEl.style.backgroundImage = `url("${chosen}")`;
+    }
   }
-  updateBgForOrientation();
-  window.addEventListener('resize', updateBgForOrientation);
+  window.addEventListener("resize", setBgForAspect);
+  window.addEventListener("orientationchange", setBgForAspect);
+  setBgForAspect();
 
-  // --- Parallax (mouse + scroll + device orientation) ---
-  let mouseX = 0, mouseY = 0;
-  const damp = 0.06;
-  let vx = 0, vy = 0;
+  // -- Parallax movement from mouse, scroll, and device tilt --
+  const parallaxState = { x:0, y:0, scrollY:0, tiltX:0, tiltY:0 };
 
-  document.addEventListener('mousemove', (e) => {
-    const cx = e.clientX - window.innerWidth/2;
-    const cy = e.clientY - window.innerHeight/2;
-    mouseX = (cx / (window.innerWidth/2));
-    mouseY = (cy / (window.innerHeight/2));
+  function applyParallax() {
+    // combine influences into small translations
+    const moveX = (parallaxState.x * 0.04) + (parallaxState.tiltX * 0.8);
+    const moveY = (parallaxState.y * 0.04) + (parallaxState.tiltY * 0.8) + (parallaxState.scrollY * 0.05);
+    // Slight parallax for image and canvas
+    const imgTx = `translate3d(${moveX}px, ${moveY}px, 0) scale(${getComputedStyle(document.documentElement).getPropertyValue('--bg-img-scale') || 1.15})`;
+    bgImageEl.style.transform = imgTx;
+    // gradient moves opposite a bit
+    gradientOverlay.style.transform = `translate3d(${(-moveX*0.45)}px, ${(-moveY*0.45)}px, 0)`;
+    // particle canvas subtle shift
+    particleCanvas.style.transform = `translate3d(${(-moveX*0.65)}px, ${(-moveY*0.65)}px, 0)`;
+  }
+
+  // Mouse move on document -> relative to center
+  document.addEventListener("mousemove", (e) => {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    parallaxState.x = (e.clientX - cx) / Math.max(cx,1);
+    parallaxState.y = (e.clientY - cy) / Math.max(cy,1);
+    applyParallax();
   });
 
-  // device tilt
-  window.addEventListener('deviceorientation', (ev) => {
-    // not all devices provide both; guard
-    if (ev.beta == null || ev.gamma == null) return;
-    // gamma (-90 to 90) left-right, beta (-180 to 180) front-back
-    const gx = ev.gamma / 90; // -1 to 1
-    const gy = ev.beta / 180; // -1 to 1
-    mouseX = gx;
-    mouseY = gy;
-  }, true);
+  // Scroll influence (if page scrollable) - we'll listen but page is mostly full-screen; keep value
+  window.addEventListener("scroll", () => {
+    parallaxState.scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    applyParallax();
+  }, {passive: true});
 
-  // scroll influence
-  window.addEventListener('scroll', () => {
-    const pct = (window.scrollY || document.documentElement.scrollTop) / (document.documentElement.scrollHeight - window.innerHeight || 1);
-    // keep subtle
-    mouseY += (pct - 0.5) * 0.08;
+  // Device orientation - tilt
+  window.addEventListener("deviceorientation", (ev) => {
+    if (ev.gamma === null && ev.beta === null) return;
+    // gamma ~ left/right tilt (-90..90), beta ~ front/back (-180..180)
+    parallaxState.tiltX = (ev.gamma || 0) / 45; // normalize
+    parallaxState.tiltY = (ev.beta  || 0) / 45;
+    applyParallax();
   });
 
-  // animation loop to smoothly update transform
-  function tick(){
-    // spring-like interpolation
-    vx += (mouseX - vx) * damp;
-    vy += (mouseY - vy) * damp;
-    // compute transforms (small translate + rotate)
-    const maxTranslate = 22; // px
-    const tx = vx * maxTranslate;
-    const ty = vy * maxTranslate * 0.7;
-    const rot = vx * 2; // degrees
-    // apply transform to image
-    bgImage.style.transform = bgImage.style.transform.replace(/translate3d\([^)]*\)/,'') || bgImage.style.transform;
-    // combine with translate
-    bgImage.style.transform = bgImage.style.transform.split('translate3d')[0] + ` translate3d(${tx}px, ${ty}px, 0) rotate(${rot}deg)`;
-    requestAnimationFrame(tick);
+  // --- Particles on canvas ---
+  const ctx = particleCanvas.getContext && particleCanvas.getContext("2d");
+  let particles = [];
+  function resizeCanvas() {
+    particleCanvas.width = window.innerWidth;
+    particleCanvas.height = window.innerHeight;
   }
-  requestAnimationFrame(tick);
-
-  // --- Particles (canvas) ---
-  const ctx = canvas.getContext('2d');
-  let DPR = Math.max(1, window.devicePixelRatio || 1);
-  function resizeCanvas(){
-    DPR = Math.max(1, window.devicePixelRatio || 1);
-    canvas.width = Math.ceil(window.innerWidth * DPR);
-    canvas.height = Math.ceil(window.innerHeight * DPR);
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
-    ctx.scale(DPR, DPR);
+  function initParticles() {
+    resizeCanvas();
+    const count = Math.round((window.innerWidth * window.innerHeight) / 90000); // scale with area
+    particles = [];
+    for (let i=0;i<count;i++) {
+      particles.push({
+        x: Math.random()*particleCanvas.width,
+        y: Math.random()*particleCanvas.height,
+        vx: (Math.random()-0.5)*0.12,
+        vy: (Math.random()-0.5)*0.12,
+        r: (Math.random()*1.6)+0.6,
+        alpha: 0.12 + Math.random()*0.6
+      });
+    }
   }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
+  function drawParticles(dt){
+    if(!ctx) return;
+    ctx.clearRect(0,0,particleCanvas.width, particleCanvas.height);
+    // subtle background glow
+    for (let p of particles) {
+      p.x += p.vx * dt * 0.08;
+      p.y += p.vy * dt * 0.08;
+      // wrap
+      if (p.x < -20) p.x = particleCanvas.width + 20;
+      if (p.x > particleCanvas.width + 20) p.x = -20;
+      if (p.y < -20) p.y = particleCanvas.height + 20;
+      if (p.y > particleCanvas.height + 20) p.y = -20;
 
-  // create particles
-  const particles = [];
-  const PARTICLE_COUNT = Math.round(Math.max(18, (window.innerWidth * window.innerHeight) / 70000));
-  for (let i=0;i<PARTICLE_COUNT;i++){
-    particles.push({
-      x: Math.random()*window.innerWidth,
-      y: Math.random()*window.innerHeight,
-      r: 0.8 + Math.random()*2.6,
-      vx: (Math.random()-0.5)*0.15,
-      vy: (Math.random()-0.5)*0.12,
-      alpha: 0.18 + Math.random()*0.6,
-      drift: Math.random()*0.4
-    });
-  }
-
-  function drawParticles(){
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-    for (let p of particles){
-      p.x += p.vx + Math.sin(perfNow/10000 + p.drift) * 0.06;
-      p.y += p.vy + Math.cos(perfNow/9000 + p.drift) * 0.03;
-      if (p.x < -20) p.x = window.innerWidth + 20;
-      if (p.x > window.innerWidth + 20) p.x = -20;
-      if (p.y < -20) p.y = window.innerHeight + 20;
-      if (p.y > window.innerHeight + 20) p.y = -20;
-
-      // soft halo
       ctx.beginPath();
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, Math.max(6, p.r * 6));
+      // soft glow by radial gradient
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*10);
       g.addColorStop(0, `rgba(255,255,255,${p.alpha})`);
+      g.addColorStop(0.6, `rgba(255,255,255,${p.alpha*0.12})`);
       g.addColorStop(1, `rgba(255,255,255,0)`);
       ctx.fillStyle = g;
-      ctx.fillRect(p.x - p.r*6, p.y - p.r*6, p.r*12, p.r*12);
+      ctx.fillRect(p.x - p.r*10, p.y - p.r*10, p.r*20, p.r*20);
     }
   }
 
-  let perfNow = 0;
+  let lastTime = performance.now();
   function particleLoop(now){
-    perfNow = now;
-    drawParticles();
+    const dt = now - lastTime;
+    drawParticles(dt);
+    lastTime = now;
     requestAnimationFrame(particleLoop);
   }
-  requestAnimationFrame(particleLoop);
 
-  // --- Socials data (with multi accounts) ---
-  const socials = [
-    { id:'discord', label:'Discord', href:'https://discord.com/users/1090665275986296904' , icon: 'M12 2C6.476 2 2 6.476 2 12c0 5.523 4.476 10 10 10s10-4.477 10-10c0-5.524-4.476-10-10-10zm-1.6 7.8c-.24 0-.44.18-.44.4v2.1c0 .22.2.4.44.4h.6c.24 0 .44-.18.44-.4v-2.1c0-.22-.2-.4-.44-.4h-.6zm5.2 0c-.24 0-.44.18-.44.4v2.1c0 .22.2.4.44.4h.6c.24 0 .44-.18.44-.4v-2.1c0-.22-.2-.4-.44-.4h-.6z' },
-    { id:'instagram', label:'Instagram', multi:true, accounts:[
-      {name:'Primary', href:'https://instagram.com/pruuingoo/'},
-      {name:'Secondary', href:'https://instagram.com/plubinki'}
-    ]},
-    { id:'youtube', label:'YouTube', href:'https://youtube.com/@Pruuingoo' },
-    { id:'anilist', label:'AniList', href:'https://anilist.co/user/pruuingoo' },
-  ];
+  window.addEventListener("resize", () => {
+    resizeCanvas();
+    initParticles();
+  });
 
-  const hidden = [
-    { id:'github', label:'GitHub', href:'https://github.com/Pruuingoo' },
-    { id:'tiktok', label:'TikTok', href:'https://tiktok.com/@pruuingoo' },
-    { id:'spotify', label:'Spotify', href:'https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi' },
-    { id:'roblox', label:'Roblox', multi:true, accounts:[
-      {name:'Primary', href:'https://roblox.com/users/5279565619/profile'},
-      {name:'Secondary', href:'https://www.roblox.com/users/8808804903/profile'}
-    ]},
-    { id:'email', label:'Email', href:'mailto:pruuingoo@gmail.com' }
-  ];
-
-  // helper to create an icon element (simple monochrome SVGs using label initials if no icon)
-  function createIconSvg(id,label){
-    // minimal fallback icons or simple letter visuals
-    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.setAttribute('viewBox','0 0 24 24');
-    svg.classList.add('social-svg');
-    // Some quick simple path icons for common services (not full logos but recognisable)
-    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('fill','currentColor');
-    switch(id){
-      case 'discord':
-        path.setAttribute('d','M20 6.5c-1.2-0.5-2.5-0.9-3.9-1.2-0.2 0.5-0.5 1-0.8 1.4-2.7-0.5-5.4-0.5-8.1 0C7.4 6 7.1 5.5 6.9 5 5.5 5.3 4.2 5.8 3 6.4 1.2 9 1 11.8 1.3 14.5c2.5 1.9 5 3.3 7.8 4.1 0.6-0.8 1.1-1.7 1.6-2.7-1.2-0.3-2.3-0.6-3.3-1.1 0.2-0.2 0.5-0.6 0.6-0.9 3.6 1 7.3 1 10.8 0 0.2 0.4 0.5 0.8 0.7 1 0.9 0.5 2 0.8 3.1 1-0.5-3-1-6-2-8.9z');
-        break;
-      case 'youtube':
-        path.setAttribute('d','M10 15l5-3-5-3v6zm11-8.5c0-.8-.6-1.5-1.4-1.6C17.9 4.7 12 4.7 12 4.7s-5.9 0-7.6.2C2.6 5 2 5.7 2 6.5 2 10.3 2 14 2 14s0 3.7.4 7.5c0.1.8.7 1.5 1.5 1.6C6.1 23 12 23 12 23s5.9 0 7.6-.3c.8-.1 1.3-.8 1.4-1.6.4-3.8.4-7.5.4-7.5s0-3.7-.4-7.5z');
-        break;
-      case 'instagram':
-        path.setAttribute('d','M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 6.5a4 4 0 1 0 .001 7.999A4 4 0 0 0 12 8.5zm4.8-3.9a1 1 0 1 1-2 0 1 1 0 0 1 2 0z');
-        break;
-      case 'anilist':
-        path.setAttribute('d','M12 2l9 7v11a2 2 0 0 1-2 2h-6v-7H11v7H5a2 2 0 0 1-2-2V9l9-7z');
-        break;
-      case 'github':
-        path.setAttribute('d','M12 2C8.1 2 5 5.1 5 9c0 3.9 2.5 7.2 6 8.3 0.4 0.1 0.6-0.2 0.6-0.5v-1.6C9.7 14.6 9.1 13.4 9.1 13.4 8.5 12.4 7.6 12 7.6 12c-0.8-0.4 0.1-0.4 0.1-0.4 0.9 0 1.4 0.9 1.4 0.9 0.8 1.4 2.1 1 2.6 0.8 0.1-0.6 0.3-1 0.6-1.2-2.2-0.2-4.5-1.1-4.5-4.9 0-1.1 0.4-2 1-2.7-0.1-0.3-0.4-1.4 0.1-2.9 0 0 0.8-0.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 0.5 1.5 0.2 2.6 0.1 2.9 0.6.7 1 1.6 1 2.7 0 3.8-2.3 4.7-4.5 4.9 0.3.3.6.9.6 1.8v2.6c0 .3.2.6.6.5A8.01 8.01 0 0 0 19 9c0-4-3.1-7-7-7z');
-        break;
-      case 'tiktok':
-        path.setAttribute('d','M12 3v10.2A4.8 4.8 0 0 1 7.2 18 4.8 4.8 0 1 1 12 9.2V7h4V5H12V3z');
-        break;
-      case 'spotify':
-        path.setAttribute('d','M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.5 14.2a.8.8 0 0 1-1.1.3c-3-1.9-6.7-2.3-11-1.2a.8.8 0 0 1-.4-1.5c4.9-1.2 9.3-.7 12.8 1.4.4.2.5.8.2 1.1z');
-        break;
-      case 'roblox':
-        path.setAttribute('d','M3 3v18h18V3H3zm12 7H9V7h6v3z');
-        break;
-      case 'email':
-        path.setAttribute('d','M2 4h20v16H2z M4 8l8 5 8-5');
-        break;
-      default:
-        path.setAttribute('d', 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z');
-    }
-    svg.appendChild(path);
-    return svg;
+  if (ctx) {
+    initParticles();
+    requestAnimationFrame(particleLoop);
   }
 
-  // create tile button
-  function makeTile(item){
-    const btn = document.createElement('button');
-    btn.className = 'social-tile';
-    btn.setAttribute('type','button');
-    btn.dataset.id = item.id;
-    btn.setAttribute('aria-label', item.label);
-    // icon
-    const svg = createIconSvg(item.id, item.label);
-    btn.appendChild(svg);
+  // --- Social buttons rendering ---
+  function mkButtonFor(social) {
+    const btn = document.createElement("button");
+    btn.className = "social-btn";
+    btn.type = "button";
+    btn.setAttribute("data-id", social.id);
+    btn.setAttribute("aria-label", social.name);
+    btn.tabIndex = 0;
+
+    // inner svg wrapper
+    const iconWrap = document.createElement("span");
+    iconWrap.className = "icon-wrap";
+    iconWrap.innerHTML = social.icon || "";
+    btn.appendChild(iconWrap);
+
     // tooltip
-    const tip = document.createElement('div');
-    tip.className = 'tooltip';
-    tip.textContent = item.label;
+    const tip = document.createElement("span");
+    tip.className = "tooltip";
+    tip.textContent = social.name;
     btn.appendChild(tip);
+
+    // click behavior: either open multi choice or open modal for url
+    btn.addEventListener("click", (e) => {
+      if (social.multi && social.multi.length) {
+        openChoiceModal(social);
+      } else {
+        openLinkModal(social.name, social.url);
+      }
+    });
+
+    // keyboard: Enter or Space
+    btn.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        btn.click();
+      }
+    });
+
     return btn;
   }
 
-  // populate visible socials
-  socials.forEach(it => {
-    const tile = makeTile(it);
-    tile.addEventListener('click', () => handleSocialClick(it));
-    socialsRow.appendChild(tile);
-  });
-
-  // hidden socials
-  hidden.forEach(it => {
-    const tile = makeTile(it);
-    tile.addEventListener('click', () => handleSocialClick(it));
-    hiddenSocials.appendChild(tile);
-  });
+  function renderSocials() {
+    socialGrid.innerHTML = "";
+    extraGrid.innerHTML = "";
+    for (const s of socials) {
+      const btn = mkButtonFor(s);
+      if (s.primaryVisible) socialGrid.appendChild(btn);
+      else extraGrid.appendChild(btn);
+    }
+  }
+  renderSocials();
 
   // toggle show more
-  toggleMoreBtn.addEventListener('click', () => {
-    const open = hiddenSocials.classList.toggle('open');
-    toggleMoreBtn.classList.toggle('open', open);
-    toggleMoreBtn.setAttribute('aria-expanded', String(open));
-    toggleMoreBtn.innerHTML = (open ? 'Show less <span class="show-arrow">↑</span>' : 'Show more <span class="show-arrow">↓</span>');
-  });
-
-  // --- Modal system ---
-  let activeTrigger = null; // element that opened modal for focus return
-
-  function openBackdrop(){
-    modalBackdrop.classList.add('show');
-    modalBackdrop.setAttribute('aria-hidden','false');
-  }
-  function closeBackdrop(){
-    modalBackdrop.classList.remove('show');
-    modalBackdrop.setAttribute('aria-hidden','true');
-    modalBackdrop.innerHTML = '';
-    if (activeTrigger) activeTrigger.focus();
-    activeTrigger = null;
-  }
-
-  modalBackdrop.addEventListener('click', (e) => {
-    if (e.target === modalBackdrop) closeBackdrop();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modalBackdrop.classList.contains('show')){
-      closeBackdrop();
+  toggleBtn.addEventListener("click", () => {
+    const hidden = extraGrid.classList.toggle("hidden");
+    const isHiddenNow = extraGrid.classList.contains("hidden");
+    toggleBtn.setAttribute("aria-expanded", String(!isHiddenNow));
+    toggleBtn.textContent = isHiddenNow ? "Show more ↓" : "Show less ↑";
+    // un-hide semantics for accessibility / focus
+    if (!isHiddenNow) {
+      extraGrid.hidden = false;
+      extraGrid.classList.remove("hidden");
+      setTimeout(()=> extraGrid.classList.remove("hidden"), 50);
+    } else {
+      extraGrid.classList.add("hidden");
+      // Delay setting hidden attr to not break animation
+      setTimeout(()=> extraGrid.hidden = true, 320);
     }
   });
 
-  // Create main modal content for a simple link
-  function createLinkModal(title, url){
-    openBackdrop();
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.setAttribute('role','dialog');
-    modal.setAttribute('aria-modal','true');
-    modal.innerHTML = `
-      <h3>${title}</h3>
-      <div class="modal-body">
-        <div class="link-display"><span class="link-text">${url}</span></div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn gradient btn-open">Open in new tab</button>
-        <button class="btn ghost btn-copy">Copy</button>
-        <button class="btn danger btn-close">Close</button>
-      </div>
-    `;
-    modalBackdrop.appendChild(modal);
+  // --- Modals & accessibility ---
+  function trapFocus(modalEl) {
+    const focusable = modalEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return () => {};
+    let index = 0;
+    focusable[index].focus();
+    function keyHandler(e) {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        index = (index + (e.shiftKey ? -1 : 1) + focusable.length) % focusable.length;
+        focusable[index].focus();
+      }
+    }
+    modalEl.addEventListener("keydown", keyHandler);
+    return () => modalEl.removeEventListener("keydown", keyHandler);
+  }
 
-    const btnOpen = modal.querySelector('.btn-open');
-    const btnCopy = modal.querySelector('.btn-copy');
-    const btnClose = modal.querySelector('.btn-close');
+  function openModal(contentEl, options = {}) {
+    lastActiveElementBeforeModal = document.activeElement;
+    modalRoot.innerHTML = "";
+    modalRoot.removeAttribute("aria-hidden");
 
-    btnOpen.addEventListener('click', ()=> window.open(url, '_blank'));
-    btnCopy.addEventListener('click', async () => {
-      try{
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.tabIndex = -1;
+    backdrop.addEventListener("mousedown", (e) => {
+      // clicking on backdrop (outside modal) closes
+      if (e.target === backdrop) closeModal();
+    });
+
+    const modalWin = document.createElement("div");
+    modalWin.className = "modal";
+    modalWin.setAttribute("role", "dialog");
+    modalWin.setAttribute("aria-modal", "true");
+    modalWin.innerHTML = "";
+    modalWin.appendChild(contentEl);
+
+    backdrop.appendChild(modalWin);
+    modalRoot.appendChild(backdrop);
+
+    // animate in
+    document.body.style.overflow = "hidden"; // prevent background scroll
+
+    const releaseTrap = trapFocus(modalWin);
+
+    function onKey(e) {
+      if (e.key === "Escape") {
+        closeModal();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+
+    function closeModal() {
+      // close animation: scale-down and fade
+      backdrop.style.transition = "opacity 180ms ease";
+      backdrop.style.opacity = "0";
+      setTimeout(() => {
+        modalRoot.innerHTML = "";
+        modalRoot.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+        releaseTrap();
+      }, 200);
+      window.removeEventListener("keydown", onKey);
+      // return focus
+      try { if (lastActiveElementBeforeModal) lastActiveElementBeforeModal.focus(); } catch(e){}
+    }
+
+    // attach close handler to any element with data-close
+    modalWin.querySelectorAll("[data-close]").forEach(el => {
+      el.addEventListener("click", closeModal);
+    });
+
+    // expose programmatic close
+    return { close: closeModal, container: modalWin };
+  }
+
+  // Open simple link modal (copy/open/close)
+  function openLinkModal(title, url) {
+    const content = document.createElement("div");
+    const titleEl = document.createElement("h3");
+    titleEl.className = "title";
+    titleEl.textContent = title;
+    const linkEl = document.createElement("div");
+    linkEl.className = "link";
+    linkEl.textContent = url;
+    content.appendChild(titleEl);
+    content.appendChild(linkEl);
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "btn";
+    copyBtn.type = "button";
+    copyBtn.textContent = "Copy";
+    copyBtn.addEventListener("click", async () => {
+      try {
         await navigator.clipboard.writeText(url);
-        const prev = btnCopy.textContent;
-        btnCopy.textContent = 'Copied';
-        setTimeout(()=> btnCopy.textContent = prev, 1400);
-      }catch(err){
-        btnCopy.textContent = 'Failed';
-        setTimeout(()=> btnCopy.textContent = 'Copy', 1400);
+        copyBtn.textContent = "Copied";
+        setTimeout(()=> copyBtn.textContent = "Copy", 1500);
+      } catch (err) {
+        copyBtn.textContent = "Copy";
+        alert("Could not copy. Use your browser to copy the link: " + url);
       }
     });
-    btnClose.addEventListener('click', closeBackdrop);
 
-    // focus management
-    setTimeout(()=> btnOpen.focus(), 30);
+    const openBtn = document.createElement("button");
+    openBtn.className = "btn strong";
+    openBtn.type = "button";
+    openBtn.textContent = "Open";
+    openBtn.addEventListener("click", () => {
+      window.open(url, "_blank", "noopener");
+    });
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "btn ghost";
+    closeBtn.type = "button";
+    closeBtn.textContent = "Close";
+    closeBtn.setAttribute("data-close", "true");
+
+    actions.appendChild(copyBtn);
+    actions.appendChild(openBtn);
+    actions.appendChild(closeBtn);
+    content.appendChild(actions);
+
+    openModal(content);
   }
 
-  // Create multi-account choice modal
-  function createChoiceModal(title, accounts){
-    openBackdrop();
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.setAttribute('role','dialog');
-    modal.setAttribute('aria-modal','true');
-    modal.innerHTML = `<h3>${title}</h3><div class="modal-body">Choose account</div><div class="modal-actions"></div>`;
-    const actions = modal.querySelector('.modal-actions');
+  // Open choice modal for multi accounts
+  function openChoiceModal(social) {
+    const content = document.createElement("div");
+    const titleEl = document.createElement("h3");
+    titleEl.className = "title";
+    titleEl.textContent = social.name;
+    content.appendChild(titleEl);
 
-    accounts.forEach(acc => {
-      const b = document.createElement('button');
-      b.className = 'btn primary';
-      b.textContent = acc.name;
-      b.addEventListener('click', () => {
-        closeBackdrop();
-        // open link modal
-        setTimeout(()=> createLinkModal(title + ' — ' + acc.name, acc.href), 80);
+    const btnWrap = document.createElement("div");
+    btnWrap.className = "actions";
+    // create gradient choice buttons
+    for (const item of social.multi) {
+      const b = document.createElement("button");
+      b.className = "btn strong";
+      b.type = "button";
+      b.textContent = item.label;
+      b.addEventListener("click", () => {
+        // open actual link modal for the chosen one
+        modalHandle.close();
+        setTimeout(() => openLinkModal(`${social.name} — ${item.label}`, item.url), 140);
       });
-      actions.appendChild(b);
-    });
-
-    const cancel = document.createElement('button');
-    cancel.className = 'btn danger';
-    cancel.textContent = 'Cancel';
-    cancel.addEventListener('click', closeBackdrop);
-    actions.appendChild(cancel);
-
-    modalBackdrop.appendChild(modal);
-    setTimeout(()=> modal.querySelector('.btn').focus(), 30);
-  }
-
-  // handle social tile click
-  function handleSocialClick(item){
-    activeTrigger = document.activeElement;
-    if (item.multi && item.accounts){
-      createChoiceModal(item.label, item.accounts);
-    }else if (item.href){
-      createLinkModal(item.label, item.href);
-    }else{
-      // fallback: show name only
-      createLinkModal(item.label, item.label);
-    }
-  }
-
-  // --- Random Cat modal ---
-  async function fetchRandomCat(){
-    try{
-      const res = await fetch(randomCatApi, {cache:'no-store'});
-      const data = await res.json();
-      return data?.file || null;
-    }catch(e){
-      console.error('cat fetch failed',e);
-      return null;
-    }
-  }
-
-  async function openCatModal(){
-    activeTrigger = document.activeElement;
-    openBackdrop();
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.setAttribute('role','dialog');
-    modal.setAttribute('aria-modal','true');
-    modal.innerHTML = `
-      <h3>Random Cat</h3>
-      <div class="modal-body" id="catBody">Loading…</div>
-      <div class="modal-actions" id="catActions">
-        <button class="btn gradient btn-open">Open in new tab</button>
-        <button class="btn ghost btn-new">New Cat</button>
-        <button class="btn danger btn-close">Close</button>
-      </div>
-    `;
-    modalBackdrop.appendChild(modal);
-    const catBody = modal.querySelector('#catBody');
-    const btnOpen = modal.querySelector('.btn-open');
-    const btnNew = modal.querySelector('.btn-new');
-    const btnClose = modal.querySelector('.btn-close');
-
-    let currentUrl = null;
-    async function loadCat(){
-      catBody.textContent = 'Loading…';
-      btnOpen.disabled = true;
-      const url = await fetchRandomCat();
-      if (!url){
-        catBody.textContent = 'Failed to get cat. Try again.';
-        btnOpen.disabled = true;
-        return;
-      }
-      currentUrl = url;
-      catBody.innerHTML = `<img src="${url}" alt="Random cat" class="modal-image">`;
-      btnOpen.disabled = false;
+      btnWrap.appendChild(b);
     }
 
-    btnOpen.addEventListener('click', ()=> { if (currentUrl) window.open(currentUrl,'_blank') });
-    btnNew.addEventListener('click', ()=> loadCat());
-    btnClose.addEventListener('click', closeBackdrop);
+    const cancelBtn = document.createElement("button");
+    cancelBtn.className = "btn warn";
+    cancelBtn.type = "button";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.setAttribute("data-close", "true");
+    btnWrap.appendChild(cancelBtn);
 
-    await loadCat();
-    setTimeout(()=> btnNew.focus(), 40);
+    content.appendChild(btnWrap);
+
+    const modalHandle = openModal(content);
   }
 
-  catBtn.addEventListener('click', () => {
-    activeTrigger = catBtn;
-    openCatModal();
+  // --- Utility: SVG icon definitions ---
+  function discordSVG(){ return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.317 4.369A19.791 19.791 0 0 0 16.982 3c-.282.47-.604 1.097-.83 1.569-2.594-.389-5.158-.389-7.66 0-.227-.472-.549-1.098-.83-1.569A19.736 19.736 0 0 0 3.684 4.37C.612 9.02-.31 13.453.066 17.807 4.02 19.888 7.908 21 12 21c4.092 0 7.98-1.112 11.935-3.193.39-4.354-.658-8.786-3.618-13.438zM8.545 15.05c-1.18 0-2.145-1.085-2.145-2.419 0-1.333.95-2.417 2.145-2.417 1.2 0 2.172 1.084 2.145 2.417 0 1.334-.95 2.419-2.145 2.419zm6.91 0c-1.18 0-2.144-1.085-2.144-2.419 0-1.333.95-2.417 2.144-2.417 1.2 0 2.172 1.084 2.145 2.417 0 1.334-.95 2.419-2.145 2.419z"/></svg>`;}
+  function instagramSVG(){ return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 6.2A3.8 3.8 0 1 0 15.8 12 3.8 3.8 0 0 0 12 8.2zm6.5-3.7a1.1 1.1 0 1 0 1.1 1.1 1.1 1.1 0 0 0-1.1-1.1z"/></svg>`;}
+  function youtubeSVG(){ return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.8 8.001a2.5 2.5 0 0 0-1.758-1.77C18.14 5.6 12 5.6 12 5.6s-6.14 0-8.042.631A2.5 2.5 0 0 0 2.2 8.001 25.89 25.89 0 0 0 2.2 12a25.9 25.9 0 0 0 .958 3.999 2.5 2.5 0 0 0 1.758 1.77C5.86 20.4 12 20.4 12 20.4s6.14 0 8.042-.631a2.5 2.5 0 0 0 1.758-1.77A25.89 25.89 0 0 0 21.8 12a25.9 25.9 0 0 0-.958-3.999zM10 14.5V9.5l5 2.5-5 2.5z"/></svg>`;}
+  function anilistSVG(){ return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L2 21h20L12 2z"/></svg>`;}
+  function githubSVG(){ return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.09 3.29 9.4 7.86 10.93.57.1.78-.25.78-.56 0-.28-.01-1.02-.01-2-3.2.69-3.88-1.55-3.88-1.55-.52-1.33-1.27-1.69-1.27-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.67 1.24 3.32.95.1-.74.4-1.24.72-1.53-2.56-.29-5.26-1.28-5.26-5.69 0-1.26.45-2.29 1.18-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.21-1.5 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.73.81 1.18 1.84 1.18 3.1 0 4.42-2.7 5.4-5.27 5.68.41.36.78 1.08.78 2.18 0 1.57-.01 2.83-.01 3.21 0 .31.21.67.79.56C20.71 21.4 24 17.09 24 12 24 5.65 18.35.5 12 .5z"/></svg>`;}
+  function tiktokSVG(){ return `<svg viewBox="0 0 24 24"><path d="M12.5 2v12.2a3.8 3.8 0 1 1-3.8-3.8V6.6A9.6 9.6 0 0 0 12.5 2z"/></svg>`;}
+  function spotifySVG(){ return `<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm4.8 14.2a.8.8 0 0 1-1.1.3 8.1 8.1 0 0 0-4.6-1.3 8.1 8.1 0 0 0-4.6 1.3.8.8 0 1 1-.8-1.4 9.7 9.7 0 0 1 5.4-1.6 9.7 9.7 0 0 1 5.4 1.6.8.8 0 0 1 .1 1.1z"/></svg>`;}
+  function robloxSVG(){ return `<svg viewBox="0 0 24 24"><path d="M3.5 6.2 12 .8l8.5 5.4v11L12 23.2 3.5 17.2z"/></svg>`;}
+  function mailSVG(){ return `<svg viewBox="0 0 24 24"><path d="M2 6l10 7L22 6v12H2z"/></svg>`;}
+
+  // --- init avatars and small polish ---
+  avatar.addEventListener("error", () => {
+    // fallback avatar color if image fails
+    avatar.style.background = "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))";
   });
 
-  // --- Avatar click opens Discord modal as shortcut ---
-  avatarEl.addEventListener('click', () => handleSocialClick({id:'discord', label:'Discord', href:'https://discord.com/users/1090665275986296904'}));
-  avatarEl.style.cursor = 'pointer';
+  // --- Accessibility: allow Escape to close any open modal (global) handled in openModal ---
 
-  // --- accessibility: ensure first focusable in modal is focused + focus return implemented above ---
+  // expose openLinkModal for testing/debug
+  window._openLinkModal = openLinkModal;
 
-  // --- Prevent white edges: ensure bg image scaled and covers more than viewport when orientation changes ---
-  // Already implemented via updateBgForOrientation scale tweak.
+  // Final small tweak: make sure bg-image chooses correct portrait immediately
+  setBgForAspect();
 
-  // --- small polish: handle deep-link keyboard focus for toggles via keyboard enter/space ---
-  [toggleMoreBtn, catBtn].forEach(btn => {
-    btn.addEventListener('keyup', (e)=> {
-      if (e.key === 'Enter' || e.key === ' ') btn.click();
-    });
-  });
-
-  // --- provide helpful console notice ---
-  console.info('UI script loaded — parallax, particles, socials, and modals are active.');
-
+  // Done
 })();
