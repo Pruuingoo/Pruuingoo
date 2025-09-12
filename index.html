@@ -1,0 +1,55 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Plui — Links</title>
+  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Plui — Tech explorer • Anime & creative projects" />
+</head>
+<body>
+  <div id="page-root">
+    <!-- Background layers -->
+    <div id="bg-wrap" aria-hidden="true">
+      <div id="bg-image" class="parallax-layer"></div>
+      <canvas id="particle-canvas" class="parallax-layer"></canvas>
+      <div id="gradient-overlay" class="parallax-layer"></div>
+    </div>
+
+    <!-- Content -->
+    <main class="center">
+      <div class="profile">
+        <img id="avatar" src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png" alt="Plui avatar" width="150" height="150">
+        <h1 class="display-name">Plui</h1>
+        <p class="subtitle">Tech explorer • Anime & creative projects</p>
+
+        <section class="card about" aria-label="About me">
+          <p>Hey — I’m Plui. I like anime, games, Discord, and random tech. I tinker and create for fun.</p>
+        </section>
+
+        <section class="socials" aria-label="Social links">
+          <div class="social-grid" id="social-grid">
+            <!-- Social buttons injected by JS -->
+          </div>
+
+          <button id="toggle-more" class="more-btn" aria-expanded="false" aria-controls="extra-grid">
+            Show more ↓
+          </button>
+
+          <div id="extra-grid" class="social-grid extra hidden" hidden>
+            <!-- Extra socials injected by JS -->
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Modal backdrop / container -->
+    <div id="modal-root" aria-hidden="true">
+      <!-- Modals created in DOM by JS when needed -->
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
