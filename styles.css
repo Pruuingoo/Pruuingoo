@@ -1,187 +1,364 @@
+/* Full styles.css — replace your current file with this */
+
 /* -------------------------
-   Base Reset & Fonts
+   Root vars & reset
    ------------------------- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+:root{
+  --bg-scale: 1.15;
+  --tile-size: clamp(48px, 11.5vw, 78px); /* responsive tile size */
+  --tile-gap: 14px;
+  --content-max: 980px;
+  --glass-1: rgba(255,255,255,0.02);
+  --glass-2: rgba(255,255,255,0.04);
+  --muted: rgba(255,255,255,0.88);
+  --card-blur: 10px;
+  --page-pad: 22px;
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html,body { height: 100%; width: 100%; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 body {
-  font-family: "Segoe UI", Roboto, sans-serif;
-  background: #0b0b0f;
+  background: #050407;
   color: #fff;
-  overflow-x: hidden;
+  font-family: var(--font-sans);
+  line-height: 1.35;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* -------------------------
+   Background layers (used by index.html & script.js)
+   ------------------------- */
+#bg-wrap { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.parallax-layer { position: absolute; inset: 0; will-change: transform, opacity; }
+
+/* main background image (swapped by JS) */
+#bg-image {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform-origin: center;
+  transform: scale(var(--bg-scale));
+  filter: saturate(1.03) contrast(0.98);
+  transition: transform 220ms linear, background-image 420ms ease;
+}
+
+/* animated gradient overlay */
+#gradient-overlay {
+  background: linear-gradient(120deg, rgba(205,103,255,0.14), rgba(100,160,255,0.08), rgba(255,120,160,0.06));
+  mix-blend-mode: screen;
+  background-size: 300% 300%;
+  animation: gradMove 14s ease-in-out infinite;
+  opacity: 0.92;
+}
+@keyframes gradMove { 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
+
+/* particle canvas */
+#particle-canvas { display:block; position:absolute; inset:0; }
+
+/* -------------------------
+   Centered page content
+   ------------------------- */
+.center {
+  position: relative;
+  z-index: 8;
   min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--page-pad) + env(safe-area-inset-top)) var(--page-pad) calc(var(--page-pad) + env(safe-area-inset-bottom));
+}
+
+/* main profile container */
+.profile {
+  width: 100%;
+  max-width: var(--content-max);
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-/* -------------------------
-   Parallax Background
-   ------------------------- */
-.parallax-bg {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at center, #141420, #0b0b0f);
-  z-index: -1;
-  transition: transform 0.15s ease-out;
-}
-
-/* -------------------------
-   Social Grid
-   ------------------------- */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 16px;
-  padding: 20px;
-  width: 100%;
-  max-width: 1000px;
-}
-
-.grid .tile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.05);
-  border-radius: 18px;
-  padding: 14px;
-  transition: transform 0.15s, box-shadow 0.2s;
-  cursor: pointer;
-}
-
-.grid .tile:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 0 18px rgba(255,255,255,0.2);
-}
-
-.grid .tile img {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-}
-
-/* -------------------------
-   Modal
-   ------------------------- */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 1000;
-}
-
-.modal.active {
-  display: flex;
-}
-
-.modal-content {
-  background: #11131a;
-  border-radius: 20px;
-  padding: 20px;
-  max-width: 380px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 0 24px rgba(255,255,255,0.1);
-}
-
-.modal-content img {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 12px;
-}
-
-.modal-content h2 {
-  font-size: 1.3rem;
-  margin-bottom: 12px;
-}
-
-.modal-content .link-box {
-  background: rgba(255,255,255,0.05);
-  border-radius: 14px;
-  padding: 8px;
-  margin-bottom: 16px;
-  font-size: 0.9rem;
-  word-break: break-all;
-}
-
-/* -------------------------
-   Modal Actions (Buttons)
-   ------------------------- */
-.modal .actions {
-  display: flex;
   gap: 14px;
+  padding: 28px;
+}
+
+/* avatar */
+#avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  box-shadow: 0 18px 36px rgba(8,6,20,0.7), 0 4px 10px rgba(0,0,0,0.5);
+}
+
+/* name & subtitle */
+.display-name { font-size: clamp(20px, 4.6vw, 34px); font-weight: 700; text-shadow: 0 10px 26px rgba(110,60,200,0.18); }
+.subtitle { font-size: clamp(12px, 2.2vw, 15px); color: var(--muted); opacity: 0.95; }
+
+/* glass cards */
+.card {
+  width: 100%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(var(--card-blur));
+  -webkit-backdrop-filter: blur(var(--card-blur));
+  box-shadow: 0 8px 28px rgba(6,6,12,0.45);
+}
+.about p { color: rgba(255,255,255,0.92); font-size: 14px; line-height: 1.45; }
+
+/* -------------------------
+   Social grid (responsive & safe)
+   ------------------------- */
+.socials { width: 100%; margin-top: 18px; }
+.social-grid {
+  width: 100%;
+  max-width: 840px;
+  margin: 0 auto;
+  display: grid;
+  gap: var(--tile-gap);
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); /* flexible */
+  align-items: center;
+  justify-items: center;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+/* force exactly 4 per row on small screens */
+@media (max-width: 640px) {
+  .social-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+}
+
+/* wrapper for each tile */
+.social-tile { width: 100%; display:flex; align-items:center; justify-content:center; }
+
+/* circular tile button */
+.tile-btn {
+  --size: var(--tile-size);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));
+  border: 1px solid rgba(255,255,255,0.04);
+  position: relative;
+  overflow: visible;
+  cursor: pointer;
+  transition: transform 160ms cubic-bezier(.2,.9,.3,1), box-shadow 160ms;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+/* hover/focus lift */
+.tile-btn:focus { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(7,6,20,0.5), 0 0 36px var(--c); }
+.tile-btn:hover { transform: translateY(-8px); }
+
+/* svg/icon inside tile */
+img.icon {
+  display:block;
+  width:auto;
+  height:auto;
+  max-width: 60%;
+  max-height: 60%;
+  object-fit: contain;
+  filter: invert(1) brightness(2); /* make icon white */
+  pointer-events: none;
+}
+
+/* glow pseudo-element (uses --c set by JS) */
+.tile-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(1);
+  transition: opacity 160ms ease, transform 160ms ease;
+  /* default subtle shadow so browsers without color-mix still show something */
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+}
+
+/* show glow on hover/active */
+.tile-btn:hover::after,
+.tile-btn[data-active="true"]::after {
+  opacity: 1;
+  transform: scale(1.04);
+}
+
+/* color glow with support fallback */
+@supports (color: color-mix(in srgb, white 100%, black 0%)) {
+  .tile-btn:hover::after,
+  .tile-btn[data-active="true"]::after {
+    box-shadow:
+      0 10px 28px rgba(0,0,0,0.48),
+      0 0 28px var(--c),
+      0 0 60px color-mix(in srgb, var(--c) 34%, transparent);
+  }
+}
+
+/* fallback glow (soft) for older browsers */
+.tile-btn:hover::after,
+.tile-btn[data-active="true"]::after {
+  box-shadow: 0 10px 22px rgba(0,0,0,0.48), 0 0 20px rgba(255,255,255,0.06);
+}
+
+/* small embed above tile (tooltip-like) */
+.tile-embed {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -8px) scale(0.98);
+  bottom: calc(var(--tile-size) + 10px);
+  min-width: 110px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(8,8,12,0.45));
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.04);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+  box-shadow: 0 8px 26px rgba(0,0,0,0.55);
+  z-index: 6;
+}
+.tile-embed::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  width: 12px; height: 12px;
+  background: inherit;
+  clip-path: polygon(50% 0, 0 100%, 100% 100%);
+  opacity: 0.98;
+}
+.tile-btn:hover .tile-embed,
+.tile-btn:focus .tile-embed,
+.tile-btn[data-active="true"] .tile-embed {
+  opacity: 1;
+  transform: translate(-50%, -14px) scale(1);
+  pointer-events: auto;
+}
+
+/* avoid embed being cut off on very short screens */
+@media (max-height: 520px) { .tile-embed { bottom: calc(var(--tile-size) + 6px); transform: translate(-50%, -6px) scale(0.98); } }
+
+/* -------------------------
+   Modal styles (matches script.js output)
+   ------------------------- */
+#modal-root { position: fixed; inset: 0; z-index: 120; pointer-events: none; }
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3,6,12,0.64);
+  display: flex;
+  align-items: center;
   justify-content: center;
+  padding: 18px;
+  pointer-events: auto;
+}
+.modal {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 18px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 30px 70px rgba(10,10,20,0.6);
+  transform-origin: center;
+  animation: modal-in 220ms cubic-bezier(.2,.9,.3,1);
+}
+@keyframes modal-in { from { transform: translateY(-8px) scale(.98); opacity: 0 } to { transform: translateY(0) scale(1); opacity:1 } }
+
+/* top icon circle */
+.modal .modal-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  margin: -56px auto 8px; display: grid; place-items: center;
+  border: 3px solid rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));
+  box-shadow: 0 10px 36px rgba(0,0,0,0.45), 0 0 22px color-mix(in srgb, var(--c, #888) 30%, transparent);
+}
+.modal .modal-icon img { width: 46%; filter: invert(1) brightness(2); }
+
+/* title and link box */
+.modal .title { font-weight: 700; text-align: center; margin: 6px 0 10px; font-size: 18px; color: #fff; }
+.modal .link-box,
+.modal .link { word-break: break-all; overflow-wrap: anywhere; white-space: normal; background: rgba(255,255,255,0.02); padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); margin-bottom:12px; text-align:center; color: var(--muted); font-size:14px; }
+
+/* row (action buttons) */
+.row, .modal .actions {
+  display:flex;
+  gap: 14px;                /* more space between buttons so they don't touch */
+  justify-content: center;  /* center them */
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
 
+/* buttons */
 .btn {
-  padding: 10px 14px;
+  padding: 9px 12px;
   border-radius: 10px;
   border: none;
   cursor: pointer;
   background: rgba(255,255,255,0.03);
   color: #fff;
-  min-width: 120px;
+  min-width: 110px;
   font-weight: 700;
   transition: transform 120ms, box-shadow 160ms;
   text-align: center;
 }
-
 .btn:active { transform: translateY(1px); }
 
-/* --- Neon glows by button type --- */
-.btn.open {
-  background: linear-gradient(90deg, rgba(0,200,120,0.12), rgba(0,160,90,0.08));
-  border: 1px solid rgba(0,200,120,0.3);
-  box-shadow: 0 0 20px rgba(0,200,120,0.5), 0 0 40px rgba(0,200,120,0.35);
+/* distinct neon glows for actions */
+.btn.primary {
+  background: linear-gradient(90deg, rgba(80,200,120,0.12), rgba(0,160,90,0.08));
+  border: 1px solid rgba(80,200,120,0.25);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 20px rgba(80,200,120,0.28);
 }
 .btn.copy {
   background: linear-gradient(90deg, rgba(80,140,255,0.12), rgba(40,100,255,0.08));
-  border: 1px solid rgba(80,140,255,0.3);
-  box-shadow: 0 0 20px rgba(80,140,255,0.55), 0 0 40px rgba(80,140,255,0.3);
+  border: 1px solid rgba(80,140,255,0.25);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 22px rgba(80,140,255,0.28);
 }
 .btn.cancel {
-  background: linear-gradient(90deg, rgba(255,150,60,0.14), rgba(255,100,40,0.08));
-  border: 1px solid rgba(255,150,60,0.3);
-  box-shadow: 0 0 20px rgba(255,150,60,0.55), 0 0 40px rgba(255,150,60,0.3);
+  background: linear-gradient(90deg, rgba(255,150,60,0.12), rgba(255,100,40,0.08));
+  border: 1px solid rgba(255,150,60,0.25);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 22px rgba(255,150,60,0.28);
 }
+/* center positioned full-width-ish close button below actions */
 .btn.close {
   display: block;
-  margin: 14px auto 0 auto;   /* centers it under the row */
+  margin: 14px auto 0 auto;  /* centers below the row */
   min-width: 160px;
+  max-width: 86%;
   background: linear-gradient(90deg, rgba(255,60,80,0.14), rgba(200,20,20,0.08));
-  border: 1px solid rgba(255,60,80,0.3);
-  box-shadow: 0 0 20px rgba(255,60,80,0.55), 0 0 40px rgba(255,60,80,0.35);
+  border: 1px solid rgba(255,60,80,0.28);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 22px rgba(255,60,80,0.28);
 }
 
-/* -------------------------
-   Responsive
-   ------------------------- */
-@media (max-width: 600px) {
-  .grid {
-    grid-template-columns: repeat(4, 1fr); /* exactly 4 per row */
-    gap: 12px;
-  }
+/* touch / focus improvements */
+:focus { outline: none; }
+.tile-btn:focus-visible { box-shadow: 0 0 0 6px rgba(120,100,255,0.12); }
 
-  .grid .tile img {
-    width: 32px;
-    height: 32px;
-  }
+/* responsive modal tweaks */
+@media (max-width: 640px) {
+  .modal { padding: 14px; }
+  .modal .modal-icon { width: 64px; height:64px; margin-top: -44px; }
+  :root { --tile-size: clamp(44px, 15vw, 66px); } /* slightly smaller tiles on phone */
+  .btn { min-width: 100px; }
+  .btn.close { min-width: 140px; }
+}
 
-  .modal-content {
-    padding: 16px;
-  }
+/* make sure nothing allows horizontal overflow */
+html, body, #page-root, #app { overflow-x: hidden !important; }
 
-  .modal-content img {
-    width: 52px;
-    height: 52px;
-  }
-   }
+/* hidden attribute respected */
+[hidden] { display: none !important; }
