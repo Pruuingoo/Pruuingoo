@@ -1,112 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plui</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plui | Links</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Parallax Background -->
+  <!-- Background Layers -->
   <div id="parallax-bg"></div>
-  <canvas id="snowflakes"></canvas>
   <div id="gradient-overlay"></div>
+  <canvas id="snowflakes"></canvas>
 
   <!-- Main Content -->
   <main>
-    <div class="profile">
-      <img src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png" 
-           alt="Avatar" class="avatar">
-      <h1 class="name">Plui</h1>
-      <p class="subtitle">Tech explorer • Anime &amp; creative projects</p>
-      <div class="about-card">
-        <p>Hey — I’m Plui. I like anime, games, Discord, and random tech. I tinker and create for fun.</p>
-      </div>
+    <img
+      src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png"
+      alt="Plui Avatar"
+      class="avatar"
+    />
+    <h1 class="name">Plui</h1>
+    <p class="subtitle">Tech explorer • Anime & creative projects</p>
+
+    <div class="about-card">
+      Hey — I’m Plui. I like anime, games, Discord, and random tech. I tinker and create for fun.
     </div>
 
     <!-- Social Grid -->
     <div class="social-grid">
-      <!-- Discord -->
-      <button class="social-btn discord" data-social="Discord" data-link="https://discord.com/users/1090665275986296904">
-        <img src="https://simpleicons.org/icons/discord.svg" alt="Discord">
-      </button>
-
-      <!-- Instagram (multi) -->
-      <button class="social-btn instagram" data-social="Instagram" data-multi="true"
+      <!-- Always visible socials -->
+      <div class="social-btn discord" data-social="Discord" data-link="https://discord.com/users/1090665275986296904">
+        <img src="https://simpleicons.org/icons/discord.svg" alt="Discord" />
+      </div>
+      <div class="social-btn instagram" data-social="Instagram" data-multi="true"
         data-primary="https://instagram.com/pruuingoo/"
         data-secondary="https://instagram.com/plubinki">
-        <img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram">
-      </button>
+        <img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram" />
+      </div>
+      <div class="social-btn youtube" data-social="YouTube" data-link="https://youtube.com/@Pruuingoo">
+        <img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube" />
+      </div>
+      <div class="social-btn anilist" data-social="AniList" data-link="https://anilist.co/user/pruuingoo">
+        <img src="https://simpleicons.org/icons/anilist.svg" alt="AniList" />
+      </div>
 
-      <!-- YouTube -->
-      <button class="social-btn youtube" data-social="YouTube" data-link="https://youtube.com/@Pruuingoo">
-        <img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube">
-      </button>
-
-      <!-- AniList -->
-      <button class="social-btn anilist" data-social="AniList" data-link="https://anilist.co/user/pruuingoo">
-        <img src="https://simpleicons.org/icons/anilist.svg" alt="AniList">
-      </button>
-
-      <!-- GitHub -->
-      <button class="social-btn github" data-social="GitHub" data-link="https://github.com/Pruuingoo">
-        <img src="https://simpleicons.org/icons/github.svg" alt="GitHub">
-      </button>
-
-      <!-- TikTok -->
-      <button class="social-btn tiktok" data-social="TikTok" data-link="https://tiktok.com/@pruuingoo">
-        <img src="https://simpleicons.org/icons/tiktok.svg" alt="TikTok">
-      </button>
-
-      <!-- Spotify -->
-      <button class="social-btn spotify" data-social="Spotify" data-link="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi">
-        <img src="https://simpleicons.org/icons/spotify.svg" alt="Spotify">
-      </button>
-
-      <!-- Roblox (multi) -->
-      <button class="social-btn roblox" data-social="Roblox" data-multi="true"
+      <!-- Extra socials -->
+      <div class="social-btn github" data-social="GitHub" data-link="https://github.com/Pruuingoo">
+        <img src="https://simpleicons.org/icons/github.svg" alt="GitHub" />
+      </div>
+      <div class="social-btn tiktok" data-social="TikTok" data-link="https://tiktok.com/@pruuingoo">
+        <img src="https://simpleicons.org/icons/tiktok.svg" alt="TikTok" />
+      </div>
+      <div class="social-btn twitch" data-social="Twitch" data-link="https://twitch.tv/pruuingoo">
+        <img src="https://simpleicons.org/icons/twitch.svg" alt="Twitch" />
+      </div>
+      <div class="social-btn pinterest" data-social="Pinterest" data-link="https://pinterest.com/OttrxZPqu">
+        <img src="https://simpleicons.org/icons/pinterest.svg" alt="Pinterest" />
+      </div>
+      <div class="social-btn twitter" data-social="X" data-link="https://x.com/Pruuingoo">
+        <img src="https://simpleicons.org/icons/x.svg" alt="X" />
+      </div>
+      <div class="social-btn ytmusic" data-social="YouTube Music" data-link="https://music.youtube.com/@nowepruim">
+        <img src="https://simpleicons.org/icons/youtubemusic.svg" alt="YouTube Music" />
+      </div>
+      <div class="social-btn soundcloud" data-social="SoundCloud" data-link="https://soundcloud.com/pruuingoo">
+        <img src="https://simpleicons.org/icons/soundcloud.svg" alt="SoundCloud" />
+      </div>
+      <div class="social-btn spotify" data-social="Spotify" data-link="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi">
+        <img src="https://simpleicons.org/icons/spotify.svg" alt="Spotify" />
+      </div>
+      <div class="social-btn roblox" data-social="Roblox" data-multi="true"
         data-primary="https://roblox.com/users/5279565619/profile"
-        data-secondary="https://roblox.com/users/8808804903/profile">
-        <img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox">
-      </button>
-
-      <!-- Email -->
-      <button class="social-btn email" data-social="Email" data-link="mailto:pruuingoo@gmail.com">
-        <img src="https://simpleicons.org/icons/gmail.svg" alt="Email">
-      </button>
+        data-secondary="https://www.roblox.com/users/8808804903/profile">
+        <img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox" />
+      </div>
+      <div class="social-btn email" data-social="Email" data-link="mailto:pruuingoo@gmail.com">
+        <img src="https://simpleicons.org/icons/gmail.svg" alt="Email" />
+      </div>
     </div>
   </main>
 
-  <!-- Multi-choice Modal -->
-  <div class="modal" id="choice-modal">
+  <!-- Choice Modal -->
+  <div id="choice-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <img id="choice-icon" src="" alt="">
+        <img id="choice-icon" src="" alt="" />
         <h2 id="choice-title"></h2>
       </div>
       <div class="choice-buttons">
         <button id="choice-primary">Primary</button>
         <button id="choice-secondary">Secondary</button>
-        <button id="choice-cancel" class="cancel">Cancel</button>
       </div>
+      <button id="choice-cancel">Cancel</button>
     </div>
   </div>
 
-  <!-- Main Modal -->
-  <div class="modal" id="link-modal">
+  <!-- Link Modal -->
+  <div id="link-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <img id="modal-icon" src="" alt="">
+        <img id="modal-icon" src="" alt="" />
         <h2 id="modal-title"></h2>
       </div>
       <div class="modal-body">
-        <input type="text" id="modal-link" readonly>
+        <input id="modal-link" readonly />
       </div>
       <div class="modal-actions">
         <button id="copy-btn">Copy</button>
         <button id="open-btn">Open</button>
       </div>
-      <button id="close-btn" class="close">Close</button>
+      <button id="close-btn">Close</button>
     </div>
   </div>
 
