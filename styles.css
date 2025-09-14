@@ -1,202 +1,138 @@
-/* ===========================
-  Replaceable styles.css
-  Matches your index.html + script.js:
-  - Restores the centered frosted-glass social panel (old look)
-  - Responsive grid that avoids overflow (wraps on very small screens)
-  - Zoomed background / overlay / particle canvas to hide edges
-  - Modal styling for your script
-  =========================== */
-
-/* ---------- Root / Reset ---------- */
-:root{
-  --bg-scale: 1.18;           /* increase to hide parallax edges */
-  --overlay-scale: 1.22;
-  --particle-scale: 1.26;
-  --max-page-width: 920px;
-  --tile-size: 64px;         /* base tile size for desktop/phone */
-  --tile-gap: 12px;
-  --glass: rgba(255,255,255,0.06);
-  --glass-border: rgba(255,255,255,0.08);
-  --text: rgba(255,255,255,0.98);
-  --muted: rgba(255,255,255,0.8);
-  --accentA: #8a2be2;
-  --accentB: #4fd1c5;
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;width:100%;overflow-x:hidden;-webkit-font-smoothing:antialiased;font-family:Inter,system-ui,Arial,sans-serif;background:#050007;color:var(--text)}
-
-/* ---------- BACKGROUND LAYERS (zoomed & centered) ---------- */
-#bg-wrap{position:fixed;inset:0;z-index:-50;overflow:hidden;pointer-events:none}
-#bg-image{
-  position:absolute;
-  left:50%;top:50%;
-  width:calc(100% * var(--bg-scale));
-  height:calc(100% * var(--bg-scale));
-  transform:translate(-50%,-50%) scale(1);
-  background-position:center center;
-  background-repeat:no-repeat;
-  background-size:cover;
-  will-change:transform;
-  z-index:-48;
-}
-#gradient-overlay{
-  position:absolute;
-  left:50%;top:50%;
-  width:calc(100% * var(--overlay-scale));
-  height:calc(100% * var(--overlay-scale));
-  transform:translate(-50%,-50%);
-  background:linear-gradient(120deg, rgba(138,43,226,0.28), rgba(58,140,255,0.18));
-  mix-blend-mode:overlay;
-  background-size:300% 300%;
-  animation:overlayShift 26s linear infinite;
-  z-index:-46;
-  pointer-events:none;
-}
-@keyframes overlayShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-
-#particle-canvas{
-  position:absolute;
-  left:50%;top:50%;
-  width:calc(100% * var(--particle-scale));
-  height:calc(100% * var(--particle-scale));
-  transform:translate(-50%,-50%);
-  z-index:-44;
-  pointer-events:none;
+body {
+  font-family: Arial, sans-serif;
+  background: #0a0a0a;
+  color: #fff;
+  overflow-x: hidden;
+  position: relative;
 }
 
-/* ---------- APP LAYOUT ---------- */
-#app{position:relative;z-index:10;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:clamp(12px,4vw,36px)}
-.profile{width:100%;max-width:var(--max-page-width);margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:10px;padding-inline:clamp(12px,4vw,24px);}
-
-/* avatar/title */
-#avatar{
-  width:clamp(86px,20vw,150px);
-  height:clamp(86px,20vw,150px);
-  border-radius:999px;
-  object-fit:cover;
-  border:1px solid rgba(255,255,255,0.06);
-  box-shadow:0 10px 30px rgba(0,0,0,0.6);
-}
-.display-name{font-size:clamp(1.4rem,3.8vw,2.4rem);font-weight:800;text-align:center;text-shadow:0 10px 30px rgba(138,43,226,0.12)}
-.subtitle{font-size:clamp(0.9rem,2.2vw,1rem);color:var(--muted);text-align:center}
-
-/* ---------- GLASS CARDS ---------- */
-.card{
-  width:min(94%,720px);
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius:16px;
-  border:1px solid var(--glass-border);
-  padding: clamp(12px,2.5vw,18px);
-  box-shadow:0 10px 30px rgba(0,0,0,0.45);
-}
-.card.about{max-width:420px;text-align:center;line-height:1.45;margin-top:6px}
-
-/* ---------- SOCIAL PANEL: RESTORE OLD LOOK ---------- */
-/* The social panel *itself* should be a centered rounded glass card.
-   The script populates #social-grid inside this container. */
-.card.socials{
-  margin-top:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:18px;           /* a bit more padding to create the rounded panel */
-  max-width:360px;        /* keep the glass social panel narrow like the old screenshot */
+/* Parallax Snowflakes Canvas */
+#snow-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
 }
 
-/* Grid inside the panel - default 4 columns, but responsiveness below */
-.social-grid{
-  display:grid;
-  grid-template-columns: repeat(4, var(--tile-size));
-  gap: var(--tile-gap);
-  justify-content:center;
-  align-items:center;
-  width:100%;
-  /* center the grid in the card */
-  justify-self:center;
-  align-self:center;
-  margin:0;
-  padding:0;
-  list-style:none;
+/* Grid for icons */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  justify-items: center;
+  z-index: 2;
+  position: relative;
 }
 
-/* Tile wrapper created by script: .social-tile */
-.social-tile{
-  width:var(--tile-size);
-  height:var(--tile-size);
-  min-width:var(--tile-size);
-  min-height:var(--tile-size);
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,0.06);
-  transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
-  position:relative;
-  overflow:hidden;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+/* Social Icon Box */
+.icon-box {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 20px;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
-/* Inner button (script uses .tile-btn) */
-.tile-btn{
-  display:flex;align-items:center;justify-content:center;width:100%;height:100%;border:0;background:transparent;color:inherit;cursor:pointer;padding:0;margin:0;
+.icon-box img {
+  width: 60%;
+  height: auto;
+  max-width: 50px;
+  max-height: 50px;
+  object-fit: contain;
 }
 
-/* Icon */
-.icon{width:36px;height:auto;display:block;filter: drop-shadow(0 3px 8px rgba(0,0,0,0.45));}
-
-/* hover state */
-.social-tile:hover, .social-tile:focus-within{
-  transform: translateY(-6px);
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-  box-shadow:0 18px 40px rgba(0,0,0,0.45);
-  outline:none;
+.icon-box:hover {
+  transform: translateY(-5px);
 }
 
-/* small label that appears on hover; script uses .tile-embed */
-.tile-embed{
-  position:absolute;bottom:6px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(0,0,0,0.66);padding:6px 8px;border-radius:8px;font-size:0.78rem;color:#fff;opacity:0;pointer-events:none;white-space:nowrap;transition:opacity .12s, transform .12s;
-}
-.social-tile:hover .tile-embed, .social-tile:focus-within .tile-embed{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ---------- Responsive rules (keeps old panel feel, prevents overflow) ---------- */
-/* On medium / small phones: reduce columns to 3 and shrink tiles */
-@media (max-width: 480px){
-  .card.socials{max-width:320px;padding:14px}
-  .social-grid { grid-template-columns: repeat(3, calc((100% - (2 * var(--tile-gap))) / 3)); }
-  :root{ --tile-size: 56px; }
-  .icon{ width:30px; }
-  .tile-embed{ display:none } /* avoid hover labels on tiny screens */
+/* Modals */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
 }
 
-/* On very narrow screens (<360px) use auto-fit to avoid overflow */
-@media (max-width: 360px){
-  .card.socials{max-width: 100%; padding:12px}
-  .social-grid { grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)); gap:8px; }
-  :root{ --tile-size: 48px; --tile-gap:8px; }
-  .icon{ width:26px; }
+.modal-content {
+  background: #111;
+  border-radius: 20px;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
 }
 
-/* ---------- Modal (matching script) ---------- */
-#modal-root { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
-.modal-backdrop{ position: fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.52); padding:20px; pointer-events:auto; }
-.modal{ width:min(520px,96%); background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border-radius:12px; padding:14px; border:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(10px); box-shadow:0 20px 50px rgba(0,0,0,0.6); animation:modalIn .18s cubic-bezier(.2,.9,.3,1); }
-@keyframes modalIn{ from{opacity:0; transform:translateY(-10px) scale(.98)} to{opacity:1; transform:none} }
+.modal-content img {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 10px;
+  display: block;
+}
 
-.modal .modal-icon{ width:64px;height:64px;border-radius:999px;margin:6px auto 8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06) }
-.modal .modal-icon img{ width:56%; height:auto; display:block }
-.modal .title{ text-align:center; font-weight:700; margin:6px 0 8px; font-size:1rem }
-.modal .link-box{ text-align:center; word-break:break-word; color:var(--muted); background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; margin-top:8px }
-.row{ display:flex; gap:10px; justify-content:center; align-items:center; margin-top:12px; flex-wrap:wrap }
-.btn{ padding:8px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:700; min-width:90px; }
-.btn.primary{ background: linear-gradient(90deg,var(--accentA),var(--accentB)); color:#fff }
-.btn.copy{ background: rgba(255,255,255,0.06); color:#fff; border:1px solid rgba(255,255,255,0.06) }
-.btn.close{ background: linear-gradient(90deg,#e04848,#a30f0f); color:#fff }
+.modal-content h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
 
-/* ---------- Safety: prevent any transform from generating horizontal scroll ---------- */
-html, body, #bg-wrap, #bg-image, #gradient-overlay, #particle-canvas { transform: translateZ(0); overflow-x:hidden }
+.modal-link {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  margin-bottom: 15px;
+}
 
-/* ---------- END ---------- */
+/* Buttons */
+.button-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+/* Neon Glow Variants */
+button.open { background: #0ff; box-shadow: 0 0 10px #0ff, 0 0 20px #0ff; }
+button.copy { background: #0f0; box-shadow: 0 0 10px #0f0, 0 0 20px #0f0; }
+button.close { background: #f00; box-shadow: 0 0 10px #f00, 0 0 20px #f00; }
+
+/* Center close button */
+button.close {
+  display: block;
+  margin: 0 auto;
+}
