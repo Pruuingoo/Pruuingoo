@@ -1,44 +1,115 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Plui — Links</title>
-  <meta name="description" content="Plui — Tech explorer • Anime & creative projects" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plui</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Background layers -->
-  <div id="bg-wrap" aria-hidden="true">
-    <div id="bg-image" class="parallax-layer" aria-hidden="true"></div>
-    <!-- particle / snowflake canvas (script will use particle-canvas or snow-canvas) -->
-    <canvas id="particle-canvas" class="parallax-layer" aria-hidden="true"></canvas>
-    <div id="gradient-overlay" class="parallax-layer" aria-hidden="true"></div>
-  </div>
+  <!-- Parallax Background -->
+  <div id="parallax-bg"></div>
+  <canvas id="snowflakes"></canvas>
+  <div id="gradient-overlay"></div>
 
-  <!-- Main content -->
-  <main id="app" class="center" role="main">
+  <!-- Main Content -->
+  <main>
     <div class="profile">
-      <img id="avatar" src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png" alt="Plui avatar" width="150" height="150">
-
-      <h1 class="display-name">Plui</h1>
-      <p class="subtitle">Tech explorer • Anime & creative projects</p>
-
-      <section class="card about" aria-label="About me">
+      <img src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png" 
+           alt="Avatar" class="avatar">
+      <h1 class="name">Plui</h1>
+      <p class="subtitle">Tech explorer • Anime &amp; creative projects</p>
+      <div class="about-card">
         <p>Hey — I’m Plui. I like anime, games, Discord, and random tech. I tinker and create for fun.</p>
-      </section>
+      </div>
+    </div>
 
-      <section class="card socials" aria-label="Social links">
-        <!-- social grid injected by script.js -->
-        <div id="social-grid" class="social-grid" role="list"></div>
-      </section>
+    <!-- Social Grid -->
+    <div class="social-grid">
+      <!-- Discord -->
+      <button class="social-btn discord" data-social="Discord" data-link="https://discord.com/users/1090665275986296904">
+        <img src="https://simpleicons.org/icons/discord.svg" alt="Discord">
+      </button>
+
+      <!-- Instagram (multi) -->
+      <button class="social-btn instagram" data-social="Instagram" data-multi="true"
+        data-primary="https://instagram.com/pruuingoo/"
+        data-secondary="https://instagram.com/plubinki">
+        <img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram">
+      </button>
+
+      <!-- YouTube -->
+      <button class="social-btn youtube" data-social="YouTube" data-link="https://youtube.com/@Pruuingoo">
+        <img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube">
+      </button>
+
+      <!-- AniList -->
+      <button class="social-btn anilist" data-social="AniList" data-link="https://anilist.co/user/pruuingoo">
+        <img src="https://simpleicons.org/icons/anilist.svg" alt="AniList">
+      </button>
+
+      <!-- GitHub -->
+      <button class="social-btn github" data-social="GitHub" data-link="https://github.com/Pruuingoo">
+        <img src="https://simpleicons.org/icons/github.svg" alt="GitHub">
+      </button>
+
+      <!-- TikTok -->
+      <button class="social-btn tiktok" data-social="TikTok" data-link="https://tiktok.com/@pruuingoo">
+        <img src="https://simpleicons.org/icons/tiktok.svg" alt="TikTok">
+      </button>
+
+      <!-- Spotify -->
+      <button class="social-btn spotify" data-social="Spotify" data-link="https://open.spotify.com/user/3jpdkh6gumg7gsnud2zxgzfaswi">
+        <img src="https://simpleicons.org/icons/spotify.svg" alt="Spotify">
+      </button>
+
+      <!-- Roblox (multi) -->
+      <button class="social-btn roblox" data-social="Roblox" data-multi="true"
+        data-primary="https://roblox.com/users/5279565619/profile"
+        data-secondary="https://roblox.com/users/8808804903/profile">
+        <img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox">
+      </button>
+
+      <!-- Email -->
+      <button class="social-btn email" data-social="Email" data-link="mailto:pruuingoo@gmail.com">
+        <img src="https://simpleicons.org/icons/gmail.svg" alt="Email">
+      </button>
     </div>
   </main>
 
-  <!-- Modal root (script will populate this when needed) -->
-  <div id="modal-root" aria-hidden="true"></div>
+  <!-- Multi-choice Modal -->
+  <div class="modal" id="choice-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <img id="choice-icon" src="" alt="">
+        <h2 id="choice-title"></h2>
+      </div>
+      <div class="choice-buttons">
+        <button id="choice-primary">Primary</button>
+        <button id="choice-secondary">Secondary</button>
+        <button id="choice-cancel" class="cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- Extended script.js (must be present in repo) -->
-  <script src="script.js" defer></script>
+  <!-- Main Modal -->
+  <div class="modal" id="link-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <img id="modal-icon" src="" alt="">
+        <h2 id="modal-title"></h2>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="modal-link" readonly>
+      </div>
+      <div class="modal-actions">
+        <button id="copy-btn">Copy</button>
+        <button id="open-btn">Open</button>
+      </div>
+      <button id="close-btn" class="close">Close</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
