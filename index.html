@@ -8,15 +8,19 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Background layers -->
   <div id="bg-wrap" aria-hidden="true">
-    <div id="bg-image" class="parallax-layer"></div>
-    <canvas id="particle-canvas" class="parallax-layer"></canvas>
-    <div id="gradient-overlay" class="parallax-layer"></div>
+    <div id="bg-image" class="parallax-layer" aria-hidden="true"></div>
+    <!-- particle / snowflake canvas (script will use particle-canvas or snow-canvas) -->
+    <canvas id="particle-canvas" class="parallax-layer" aria-hidden="true"></canvas>
+    <div id="gradient-overlay" class="parallax-layer" aria-hidden="true"></div>
   </div>
 
+  <!-- Main content -->
   <main id="app" class="center" role="main">
     <div class="profile">
       <img id="avatar" src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png" alt="Plui avatar" width="150" height="150">
+
       <h1 class="display-name">Plui</h1>
       <p class="subtitle">Tech explorer • Anime & creative projects</p>
 
@@ -25,14 +29,16 @@
       </section>
 
       <section class="card socials" aria-label="Social links">
+        <!-- social grid injected by script.js -->
         <div id="social-grid" class="social-grid" role="list"></div>
       </section>
     </div>
   </main>
 
-  <!-- Modal root -->
+  <!-- Modal root (script will populate this when needed) -->
   <div id="modal-root" aria-hidden="true"></div>
 
+  <!-- Extended script.js (must be present in repo) -->
   <script src="script.js" defer></script>
 </body>
 </html>
