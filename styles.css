@@ -91,16 +91,16 @@ main {
 .social-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-  gap: 1rem;
+  gap: 1.2rem;
   width: 100%;
-  max-width: 600px;
+  max-width: 650px;
   justify-items: center;
 }
 
 .social-btn {
   width: 70px;
   height: 70px;
-  border-radius: 1rem;
+  border-radius: 50%;
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(8px);
   display: flex;
@@ -112,39 +112,44 @@ main {
 }
 
 .social-btn img {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
 }
 
 /* Hover/Active */
 .social-btn:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px);
 }
 
 .social-btn:active {
   transform: scale(0.9);
 }
 
-/* Neon Colors */
-.discord { box-shadow: 0 0 10px #5865F2; }
-.instagram { box-shadow: 0 0 10px #E1306C; }
-.youtube { box-shadow: 0 0 10px #FF0000; }
-.anilist { box-shadow: 0 0 10px #02A9FF; }
-.github { box-shadow: 0 0 10px #ffffff; }
-.tiktok { box-shadow: 0 0 10px #69C9D0; }
-.spotify { box-shadow: 0 0 10px #1DB954; }
-.roblox { box-shadow: 0 0 10px #FF4757; }
-.email { box-shadow: 0 0 10px #EA4335; }
+/* Neon Glow Colors */
+.discord { box-shadow: 0 0 12px #5865F2; }
+.instagram { box-shadow: 0 0 12px #E1306C; }
+.youtube { box-shadow: 0 0 12px #FF0000; }
+.anilist { box-shadow: 0 0 12px #02A9FF; }
+.github { box-shadow: 0 0 12px #ffffff; }
+.tiktok { box-shadow: 0 0 12px #69C9D0; }
+.twitch { box-shadow: 0 0 12px #9146FF; }
+.pinterest { box-shadow: 0 0 12px #E60023; }
+.twitter { box-shadow: 0 0 12px #1DA1F2; }
+.ytmusic { box-shadow: 0 0 12px #FF0000; }
+.soundcloud { box-shadow: 0 0 12px #FF7700; }
+.spotify { box-shadow: 0 0 12px #1DB954; }
+.roblox { box-shadow: 0 0 12px #FF4757; }
+.email { box-shadow: 0 0 12px #EA4335; }
 
 /* Tooltip */
 .social-btn::after {
   content: attr(data-social);
   position: absolute;
-  bottom: 110%;
+  bottom: 115%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.85);
   color: #fff;
   padding: 0.3rem 0.6rem;
   font-size: 0.7rem;
@@ -262,7 +267,7 @@ main {
 @media (max-width: 500px) {
   .social-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.8rem;
+    gap: 1rem;
   }
 
   .social-btn {
@@ -271,7 +276,7 @@ main {
   }
 
   .social-btn img {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
   }
-}
+                            }
