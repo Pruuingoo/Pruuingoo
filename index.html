@@ -12,7 +12,7 @@
   <meta name="color-scheme" content="dark">
 </head>
 <body>
-  <!-- background images (landscape & portrait) -->
+  <!-- Background layers (landscape default, portrait swapped via CSS) -->
   <div id="bg-landscape" class="bg-layer" aria-hidden="true"></div>
   <div id="bg-portrait" class="bg-layer" aria-hidden="true"></div>
 
@@ -22,65 +22,62 @@
   <!-- snow canvas -->
   <canvas id="snow" aria-hidden="true"></canvas>
 
-  <main class="stage">
-    <div class="center-wrap">
+  <main class="stage" id="stage">
+    <div class="container">
 
-      <!-- PROFILE: rounded blurred square behind avatar -->
-      <div class="card card-profile" id="cardProfile" data-tilt>
-        <div class="profile-square"></div> <!-- rounded square behind avatar -->
-        <div class="profile-inner">
-          <div class="avatar-wrap" id="avatarWrap" tabindex="0">
+      <!-- PROFILE block -->
+      <section class="profile-wrap">
+        <div class="profile-square" aria-hidden="true"></div>
+        <div class="profile-inner" id="profileInner" data-tilt>
+          <div class="avatar-wrap" id="avatarWrap" tabindex="0" aria-label="Avatar">
             <img id="avatar" src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png" alt="Pruuingoo avatar">
           </div>
-          <h1 class="display-name">Pruuingoo</h1>
+          <h1 class="name">Pruuingoo</h1>
         </div>
-      </div>
+      </section>
 
-      <!-- ROW: About + Links -->
-      <div class="row">
-        <!-- About card with its own single blur square -->
-        <div class="card card-about">
-          <div class="card-blur about-square" aria-hidden="true"></div>
+      <!-- About + Links row -->
+      <section class="row">
+        <!-- About (its own blurred square) -->
+        <article class="card about-card">
+          <div class="about-square" aria-hidden="true"></div>
           <div class="card-inner">
             <h2>About Me</h2>
-            <p class="about-text">Hi I'm Plui or Pruuingoo or Plubinki or pruim — whatever you wanna call me. I like to do random stuff and tandem projects. I also like gaming and stuff.</p>
+            <p class="about-text">Hi I'm Plui or Pruuingoo or Plubinki or pruim whatever you wanna call me i like to do random stuff and random projects. I also like gaming and stuff.</p>
           </div>
-        </div>
+        </article>
 
-        <!-- Links card with its own single blur square behind ALL icons -->
-        <div class="card card-links">
-          <div class="card-blur links-square" aria-hidden="true"></div>
+        <!-- Links (one blurred square behind all icons) -->
+        <article class="card links-card">
+          <div class="links-square" aria-hidden="true"></div>
           <div class="card-inner">
-            <h2 class="links-title">Socials</h2>
-
-            <!-- grid; JS will populate -->
-            <div class="links-grid" id="linksGrid" aria-live="polite"></div>
+            <h2>Socials</h2>
+            <div id="linksGrid" class="links-grid" aria-live="polite"></div>
           </div>
-        </div>
-      </div>
+        </article>
+      </section>
     </div>
   </main>
 
-  <!-- Single Modal -->
+  <!-- Modal: icon → name → link box → Open + Copy, Close centered -->
   <div id="modalBackdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-card" id="modalCard" role="document" aria-labelledby="modalName">
       <div class="modal-top">
         <img id="modalIcon" class="modal-icon" src="" alt="">
-        <div style="flex:1;">
+        <div class="modal-meta">
           <h3 id="modalName">Name</h3>
-          <input id="modalLink" readonly>
+          <input id="modalLink" readonly />
         </div>
       </div>
-
       <div class="modal-actions">
-        <button id="modalOpen" class="btn btn-primary">Open</button>
-        <button id="modalCopy" class="btn btn-secondary">Copy</button>
+        <button id="modalOpen" class="btn btn-open">Open</button>
+        <button id="modalCopy" class="btn btn-copy">Copy</button>
       </div>
       <button id="modalClose" class="btn btn-close">Close</button>
     </div>
   </div>
 
-  <!-- Choice modal (Instagram/Roblox) -->
+  <!-- Choice modal: Instagram & Roblox choices -->
   <div id="choiceBackdrop" class="modal-backdrop hidden" aria-hidden="true">
     <div class="modal-card small" role="document">
       <h3 id="choiceTitle">Choose</h3>
