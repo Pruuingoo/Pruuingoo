@@ -1,172 +1,162 @@
-/* script.js — fully rebuilt, patched & synced */
+/* ================= script.js ================= */
 
-/* ------------------ Socials list ------------------ */
-const SOCIALS = [
-  { key: 'discord',    name: 'Discord',   url: 'https://discord.com/users/1090665275986296904', icon: 'discord',   color: '#5865F2' },
-  { key: 'instagram',  name: 'Instagram', url: 'https://instagram.com/pruuingoo/', icon: 'instagram', color: '#E1306C', multi: true, alt: 'https://instagram.com/plubinki/' },
-  { key: 'roblox',     name: 'Roblox',    url: 'https://roblox.com/users/5279565619/profile', icon: 'roblox',    color: '#5865F2', multi: true, alt: 'https://www.roblox.com/users/8808804903/profile' },
-  { key: 'youtube',    name: 'YouTube',   url: 'https://youtube.com/@Pruuingoo', icon: 'youtube',   color: '#FF0000' },
-  { key: 'ytmusic',    name: 'YT Music',  url: 'https://music.youtube.com/@nowepruim', icon: 'youtube',  color: '#FF0000' },
-  { key: 'spotify',    name: 'Spotify',   url: 'https://open.spotify.com/user/31pjdkh6gumg7gsnud2zxgzfaswi', icon: 'spotify', color: '#1DB954' },
-  { key: 'soundcloud', name: 'SoundCloud',url: 'https://soundcloud.com/pruuingoo', icon: 'soundcloud',color: '#FF5500' },
-  { key: 'anilist',    name: 'AniList',   url: 'https://anilist.co/user/pruuingoo', icon: 'anilist',   color: '#2E51A2' },
-  { key: 'pinterest',  name: 'Pinterest', url: 'https://pinterest.com/OttrxZPqu', icon: 'pinterest', color: '#E60023' },
-  { key: 'x',          name: 'X',         url: 'https://x.com/Pruuingoo', icon: 'x',         color: '#000000' },
-  { key: 'reddit',     name: 'Reddit',    url: 'https://reddit.com/user/Tasty-Replacement310/', icon: 'reddit', color: '#FF4500' },
-  { key: 'twitch',     name: 'Twitch',    url: 'https://twitch.tv/pruuingoo', icon: 'twitch',   color: '#6441A4' },
-  { key: 'github',     name: 'GitHub',    url: 'https://tiktok.com/@pruuingoo', icon: 'github',   color: '#181717' },
-  { key: 'tiktok',     name: 'TikTok',    url: 'https://tiktok.com/@pruuingoo', icon: 'tiktok',   color: '#000000' },
-  { key: 'email',      name: 'Email',     url: 'mailto:pruuingoo@gmail.com', icon: 'gmail',     color: '#D93025' }
-];
+/* ---------------- Parallax ---------------- */
+const bgLayers = document.querySelectorAll('.bg-layer');
+document.addEventListener('pointermove', (e) => {
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+  const dx = (e.clientX - cx) / cx;
+  const dy = (e.clientY - cy) / cy;
 
-/* Helper: white icon URL from simpleicons */
-function iconUrl(slug){ return `https://cdn.simpleicons.org/${slug}/ffffff`; }
+  bgLayers.forEach((layer, i) => {
+    const depth = (i + 1) * 8;
+    layer.style.transform = `scale(1.12) translate(${dx * 8 / depth}px, ${dy * 8 / depth}px)`;
+  });
+});
 
-/* Helper: hex → rgba */
-function hexToRgba(hex, a=1){
-  hex = (hex || '#ffffff').replace('#','');
-  if(hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
-  const bigint = parseInt(hex,16);
-  const r = (bigint >> 16) & 255;
-  const g = (bigint >> 8) & 255;
-  const b = bigint & 255;
-  return `rgba(${r},${g},${b},${a})`;
+/* ---------------- Snow ---------------- */
+const canvas = document.getElementById('snowCanvas');
+const ctx = canvas.getContext('2d');
+let width = canvas.width = window.innerWidth;
+let height = canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+});
+
+const flakes = [];
+const flakesCount = 120;
+for (let i = 0; i < flakesCount; i++) {
+  flakes.push({
+    x: Math.random() * width,
+    y: Math.random() * height,
+    r: 1 + Math.random() * 3,
+    d: Math.random() * flakesCount
+  });
 }
 
-/* Add dynamic CSS for glowing icons */
-const styleTag = document.createElement('style');
-document.head.appendChild(styleTag);
+function drawSnow() {
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.beginPath();
+  for (let i = 0; i < flakesCount; i++) {
+    const f = flakes[i];
+    ctx.moveTo(f.x, f.y);
+    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+  }
+  ctx.fill();
+  updateSnow();
+}
 
-/* ---------------- Build social grid ---------------- */
+function updateSnow() {
+  for (let i = 0; i < flakesCount; i++) {
+    const f = flakes[i];
+    f.y += Math.cos(f.d) + 0.2;
+    f.x += Math.sin(f.d) * 0.5;
+
+    if (f.x > width + 5 || f.x < -5 || f.y > height) {
+      f.x = Math.random() * width;
+      f.y = -10;
+    }
+  }
+}
+
+function animateSnow() {
+  drawSnow();
+  requestAnimationFrame(animateSnow);
+}
+animateSnow();
+
+/* ---------------- Social Icons ---------------- */
+const socials = [
+  { name: 'Discord', url: 'https://discord.com/users/1090665275986296904', icon: 'discord', color: '#5865F2' },
+  { name: 'Instagram', url: ['https://instagram.com/pruuingoo/', 'https://instagram.com/plubinki/'], icon: 'instagram', color: '#E1306C' },
+  { name: 'Roblox', url: ['https://roblox.com/users/5279565619/profile', 'https://www.roblox.com/users/8808804903/profile'], icon: 'roblox', color: '#5865F2' },
+  { name: 'YouTube', url: 'https://youtube.com/@Pruuingoo', icon: 'youtube', color: '#FF0000' },
+  { name: 'YT Music', url: 'https://music.youtube.com/@nowepruim', icon: 'youtube', color: '#FF0000' },
+  { name: 'Spotify', url: 'https://open.spotify.com/user/31pjdkh6gumg7gsnud2zxgzfaswi', icon: 'spotify', color: '#1DB954' },
+  { name: 'SoundCloud', url: 'https://soundcloud.com/pruuingoo', icon: 'soundcloud', color: '#FF5500' },
+  { name: 'AniList', url: 'https://anilist.co/user/pruuingoo', icon: 'anilist', color: '#2E51A2' },
+  { name: 'Pinterest', url: 'https://pinterest.com/OttrxZPqu', icon: 'pinterest', color: '#E60023' },
+  { name: 'X', url: 'https://x.com/Pruuingoo', icon: 'x', color: '#000000' },
+  { name: 'Reddit', url: 'https://reddit.com/user/Tasty-Replacement310/', icon: 'reddit', color: '#FF4500' },
+  { name: 'Twitch', url: 'https://twitch.tv/pruuingoo', icon: 'twitch', color: '#6441A4' },
+  { name: 'GitHub', url: 'https://tiktok.com/@pruuingoo', icon: 'github', color: '#181717' },
+  { name: 'TikTok', url: 'https://tiktok.com/@pruuingoo', icon: 'tiktok', color: '#000000' },
+  { name: 'Email', url: 'mailto:pruuingoo@gmail.com', icon: 'gmail', color: '#D93025' }
+];
+
 const linksGrid = document.getElementById('linksGrid');
-SOCIALS.forEach(s => {
+
+socials.forEach(s => {
   const btn = document.createElement('button');
-  btn.className = 'social-btn';
-  btn.setAttribute('data-key', s.key);
+  btn.classList.add('social-btn');
   btn.setAttribute('aria-label', s.name);
-  btn.title = s.name;
 
   const img = document.createElement('img');
-  img.src = iconUrl(s.icon);
-  img.alt = `${s.name} icon`;
-  img.loading = 'lazy';
+  if(Array.isArray(s.url)) img.src = `https://cdn.simpleicons.org/${s.icon}/ffffff`;
+  else img.src = `https://cdn.simpleicons.org/${s.icon}/ffffff`;
+  img.alt = s.name;
+  btn.appendChild(img);
 
   const tip = document.createElement('span');
   tip.className = 'tooltip';
   tip.innerText = s.name;
-
-  btn.appendChild(img);
   btn.appendChild(tip);
+
   linksGrid.appendChild(btn);
 
-  // gentle glow animation
-  const rgba = hexToRgba(s.color,0.85);
-  const key = `pulse-${s.key}`;
-  styleTag.sheet.insertRule(`@keyframes ${key} {
-    0% { filter: drop-shadow(0 0 6px ${rgba}); transform:scale(1); }
-    50% { filter: drop-shadow(0 0 20px ${rgba}); transform:scale(1.06) translateY(-2px); }
-    100% { filter: drop-shadow(0 0 6px ${rgba}); transform:scale(1); }
-  }`, styleTag.sheet.cssRules.length);
-
-  img.style.filter = `drop-shadow(0 0 10px ${rgba})`;
-  img.style.animation = `${key} ${3+Math.random()*1.5}s ease-in-out ${Math.random()*0.6}s infinite`;
-
-  // click handler
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if(s.key === 'instagram'){
-      openChoiceModal('Instagram', [
-        { label: 'Primary', link: 'https://instagram.com/pruuingoo/' },
-        { label: 'Secondary', link: 'https://instagram.com/plubinki/' }
-      ]);
-    } else if(s.key === 'roblox'){
-      openChoiceModal('Roblox', [
-        { label: 'Primary', link: 'https://roblox.com/users/5279565619/profile' },
-        { label: 'Secondary', link: 'https://www.roblox.com/users/8808804903/profile' }
-      ]);
+  btn.addEventListener('click', e => {
+    if(Array.isArray(s.url)) {
+      openChoiceModal(s.name, s.url);
     } else {
       openModal(s.name, s.url, s.icon);
     }
   });
 });
 
-/* ---------------- MODAL ---------------- */
+/* ---------------- Modal ---------------- */
 const modalBackdrop = document.getElementById('modalBackdrop');
-const modalCard = document.getElementById('modalCard');
-const modalIcon = document.getElementById('modalIcon');
 const modalName = document.getElementById('modalName');
 const modalLink = document.getElementById('modalLink');
+const modalIcon = document.getElementById('modalIcon');
 const modalOpen = document.getElementById('modalOpen');
 const modalCopy = document.getElementById('modalCopy');
 const modalClose = document.getElementById('modalClose');
 
-function openModal(name,url,iconSlug){
+function openModal(name, url, icon){
   modalBackdrop.classList.remove('hidden');
-  modalBackdrop.setAttribute('aria-hidden','false');
-  modalIcon.src = iconUrl(iconSlug||'link');
   modalName.textContent = name;
   modalLink.value = url;
-  requestAnimationFrame(()=>{
-    modalCard.style.opacity='1';
-    modalCard.style.transform='scale(1)';
-  });
-  modalOpen.onclick = ()=> window.open(url,'_blank');
-  modalCopy.onclick = ()=> {
-    navigator.clipboard.writeText(url).then(()=>{
-      modalCopy.innerText='Copied';
-      setTimeout(()=> modalCopy.innerText='Copy',1200);
-    });
-  };
-}
-function closeModal(){
-  modalCard.style.opacity='0';
-  modalCard.style.transform='scale(.98)';
-  setTimeout(()=>{
-    modalBackdrop.classList.add('hidden');
-    modalBackdrop.setAttribute('aria-hidden','true');
-  },240);
-}
-modalClose.addEventListener('click', closeModal);
-modalBackdrop.addEventListener('click', e => { if(e.target===modalBackdrop) closeModal(); });
+  modalIcon.src = `https://cdn.simpleicons.org/${icon}/ffffff`;
 
-/* ---------------- CHOICE MODAL ---------------- */
+  modalOpen.onclick = ()=> window.open(url, '_blank');
+  modalCopy.onclick = ()=> { navigator.clipboard.writeText(url); };
+}
+modalClose.addEventListener('click', ()=> modalBackdrop.classList.add('hidden'));
+modalBackdrop.addEventListener('click', e => { if(e.target===modalBackdrop) modalBackdrop.classList.add('hidden'); });
+
+/* ---------------- Choice Modal ---------------- */
 const choiceBackdrop = document.getElementById('choiceBackdrop');
-const choiceTitle = document.getElementById('choiceTitle');
 const choiceButtons = document.getElementById('choiceButtons');
 const choiceCancel = document.getElementById('choiceCancel');
+const choiceTitle = document.getElementById('choiceTitle');
 
-function openChoiceModal(title, options){
+function openChoiceModal(title, urls){
   choiceBackdrop.classList.remove('hidden');
-  choiceBackdrop.setAttribute('aria-hidden','false');
-  choiceTitle.textContent = title;
-  choiceButtons.innerHTML='';
-  options.forEach(opt=>{
+  choiceTitle.innerText = title;
+  choiceButtons.innerHTML = '';
+  urls.forEach((url,i)=>{
     const b = document.createElement('button');
-    b.className='btn btn-open';
-    b.textContent=opt.label;
-    b.addEventListener('click',()=>{
-      openModal(`${title} — ${opt.label}`, opt.link, title.toLowerCase());
+    b.innerText = i===0?'Primary':'Secondary';
+    b.onclick = ()=> {
+      openModal(`${title} — ${b.innerText}`, url, title.toLowerCase());
       choiceBackdrop.classList.add('hidden');
-    });
+    };
     choiceButtons.appendChild(b);
   });
 }
-choiceCancel.addEventListener('click',()=> choiceBackdrop.classList.add('hidden'));
-choiceBackdrop.addEventListener('click', e=> { if(e.target===choiceBackdrop) choiceBackdrop.classList.add('hidden'); });
 
-/* ---------------- PAGE READY ANIMATIONS ---------------- */
-window.addEventListener('load', ()=>{
-  document.documentElement.classList.add('is-ready');
-
-  const avatarWrap = document.getElementById('avatarWrap');
-  avatarWrap.style.transform='scale(.96)';
-  setTimeout(()=> avatarWrap.style.transform='scale(1)',240);
-
-  setTimeout(()=> {
-    document.querySelector('.name').style.opacity='1';
-    document.querySelector('.name').style.transform='translateY(0) scale(1)';
-  },180);
-
-  const profileInner = document.getElementById('profileInner');
-  profileInner.addEventListener('mousemove',(e)=>{
-    const rect = profileInner.getBoundingClientRect();
+choiceCancel.addEventListener('click', ()=> choiceBackdrop.classList.add('hidden'));
+choiceBackdrop.addEventListener('click', e => { if(e.target===choiceBackdrop) choiceBackdrop.classList.add('hidden'); });
