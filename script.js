@@ -1,110 +1,130 @@
-/* ========= BACKGROUND ORIENTATION ========= */
-function setBackgroundByOrientation() {
-  const bg = document.getElementById("parallax-bg");
-  if (!bg) return;
-  if (window.innerHeight > window.innerWidth) {
-    bg.style.backgroundImage = "url('https://i.postimg.cc/MTg4CH6d/481e502c01bbac451059193014ea67e9.jpg')";
-  } else {
-    bg.style.backgroundImage = "url('https://i.postimg.cc/90TSC2zV/837b06cad6840eafd3db75f8655d20ce.jpg')";
+// Snow effect
+const canvas = document.getElementById("snow");
+const ctx = canvas.getContext("2d");
+let flakes = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+function createFlakes() {
+  for (let i = 0; i < 100; i++) {
+    flakes.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 4 + 1,
+      d: Math.random() + 1
+    });
   }
 }
-window.addEventListener("resize", setBackgroundByOrientation);
-window.addEventListener("load", setBackgroundByOrientation);
+createFlakes();
 
-/* ========= PARALLAX ========= */
-document.addEventListener("mousemove", (e) => {
-  const bg = document.getElementById("parallax-bg");
-  if (bg) {
-    const moveX = (e.clientX / window.innerWidth - 0.5) * 20;
-    const moveY = (e.clientY / window.innerHeight - 0.5) * 20;
-    bg.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.05)`;
+function drawFlakes() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  for (let f of flakes) {
+    ctx.moveTo(f.x, f.y);
+    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
   }
-});
+  ctx.fill();
+  moveFlakes();
+}
 
-/* ========= SNOWFLAKE EFFECT ========= */
-function createSnowflakes() {
-  const container = document.getElementById("snowflakes");
-  if (!container) return;
-  const total = 60;
-  for (let i = 0; i < total; i++) {
-    const flake = document.createElement("div");
-    flake.innerHTML = "❄";
-    flake.style.position = "absolute";
-    flake.style.color = "white";
-    flake.style.fontSize = Math.random() * 10 + 10 + "px";
-    flake.style.left = Math.random() * 100 + "vw";
-    flake.style.top = Math.random() * -100 + "vh";
-    flake.style.opacity = Math.random();
-    flake.style.animation = `fall ${5 + Math.random() * 10}s linear infinite`;
-    container.appendChild(flake);
+function moveFlakes() {
+  for (let f of flakes) {
+    f.y += Math.pow(f.d, 2) + 1;
+    if (f.y > canvas.height) {
+      f.y = 0;
+      f.x = Math.random() * canvas.width;
+    }
   }
 }
-createSnowflakes();
-const style = document.createElement("style");
-style.innerHTML = `
-@keyframes fall {
-  0% { transform: translateY(-10vh) rotate(0deg); }
-  100% { transform: translateY(110vh) rotate(360deg); }
-}`;
-document.head.appendChild(style);
+setInterval(drawFlakes, 25);
 
-/* ========= MODALS ========= */
-function setupModals() {
-  const buttons = document.querySelectorAll(".social-btn");
-  const modals = document.querySelectorAll(".modal");
+// Modal Logic
+const modal = document.getElementById("modal");
+const modalTitle = document.getElementById("modal-title");
+const modalLink = document.getElementById("modal-link");
+const modalIcon = document.querySelector(".modal-icon");
+const openBtn = document.getElementById("open-btn");
+const copyBtn = document.getElementById("copy-btn");
+const closeBtn = document.getElementById("close-btn");
 
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-modal");
-      const modal = document.getElementById(id);
-      if (modal) modal.classList.add("show");
-    });
-  });
+const choiceModal = document.getElementById("choice-modal");
+const choiceTitle = document.getElementById("choice-title");
+const choiceButtons = document.getElementById("choice-buttons");
+const choiceCancel = document.getElementById("choice-cancel");
 
-  document.querySelectorAll("#close-btn, #choice-cancel").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      modals.forEach((m) => m.classList.remove("show"));
-    });
-  });
+const links = {
+  discord: "https://discord.com/users/1090665275986296904",
+  instagram: "https://instagram.com/pruuingoo/",
+  instagram2: "https://instagram.com/plubinki/",
+  youtube: "https://youtube.com/@Pruuingoo",
+  ytmusic: "https://music.youtube.com/@nowepruim",
+  spotify: "https://open.spotify.com/user/31pjdkh6gumg7gsnud2zxgzfaswi",
+  soundcloud: "https://soundcloud.com/pruuingoo",
+  anilist: "https://anilist.co/user/pruuingoo",
+  pinterest: "https://pinterest.com/OttrxZPqu",
+  x: "https://x.com/Pruuingoo",
+  reddit: "https://reddit.com/user/Tasty-Replacement310/",
+  twitch: "https://twitch.tv/pruuingoo",
+  github: "https://github.com/pruuingoo",
+  tiktok: "https://tiktok.com/@pruuingoo",
+  roblox1: "https://roblox.com/users/5279565619/profile",
+  roblox2: "https://www.roblox.com/users/8808804903/profile",
+  email: "mailto:pruuingoo@gmail.com"
+};
 
-  window.addEventListener("click", (e) => {
-    if (e.target.classList.contains("modal")) {
-      e.target.classList.remove("show");
+document.querySelectorAll(".icon-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.dataset.modal;
+
+    if (key === "instagram") {
+      openChoice("Instagram", [
+        { label: "Primary", link: links.instagram },
+        { label: "Secondary", link: links.instagram2 }
+      ]);
+    } else if (key === "roblox1") {
+      openChoice("Roblox", [
+        { label: "Primary", link: links.roblox1 },
+        { label: "Secondary", link: links.roblox2 }
+      ]);
+    } else {
+      openModal(key, links[key]);
     }
   });
+});
 
-  // Choice handling
-  document.querySelectorAll("#choice-primary").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const parent = btn.closest(".modal");
-      parent.classList.remove("show");
-      document.getElementById(parent.id.replace("-choice","-primary")).classList.add("show");
-    });
-  });
-  document.querySelectorAll("#choice-secondary").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const parent = btn.closest(".modal");
-      parent.classList.remove("show");
-      document.getElementById(parent.id.replace("-choice","-secondary")).classList.add("show");
-    });
-  });
+function openModal(name, link) {
+  modalTitle.textContent = name;
+  modalLink.value = link;
+  modal.classList.remove("hidden");
 
-  // Copy + open
-  document.querySelectorAll("#copy-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const input = btn.closest(".modal-content").querySelector("input");
-      if (input) {
-        navigator.clipboard.writeText(input.value);
-        btn.textContent = "Copied!";
-        setTimeout(() => btn.textContent = "Copy", 2000);
-      }
-    });
-  });
-  document.querySelectorAll("#open-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const input = btn.closest(".modal-content").querySelector("input");
-      if (input) window.open(input.value, "_blank");
-    });
-  });
+  openBtn.onclick = () => window.open(link, "_blank");
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(link);
+    copyBtn.textContent = "Copied!";
+    setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
+  };
 }
-setupModals();
+closeBtn.onclick = () => modal.classList.add("hidden");
+
+function openChoice(title, options) {
+  choiceTitle.textContent = title;
+  choiceButtons.innerHTML = "";
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt.label;
+    btn.onclick = () => {
+      openModal(opt.label, opt.link);
+      choiceModal.classList.add("hidden");
+    };
+    choiceButtons.appendChild(btn);
+  });
+  choiceModal.classList.remove("hidden");
+}
+choiceCancel.onclick = () => choiceModal.classList.add("hidden");
