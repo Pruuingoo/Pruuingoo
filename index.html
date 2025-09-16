@@ -1,80 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pruuingoo</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pruuingoo — Profile</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <meta name="color-scheme" content="dark">
 </head>
 <body>
-  <div class="overlay"></div>
-  <canvas id="snow"></canvas>
+  <!-- Background layers -->
+  <div id="bg-landscape" class="bg-layer" aria-hidden="true"></div>
+  <div id="bg-portrait" class="bg-layer" aria-hidden="true"></div>
 
-  <main>
-    <!-- Profile Section -->
-    <section class="profile">
-      <img src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png" 
-           alt="Profile Picture" class="avatar"/>
-      <h1 class="name">Pruuingoo</h1>
-    </section>
+  <!-- overlay gradient -->
+  <div class="gradient-overlay" aria-hidden="true"></div>
 
-    <!-- About Section -->
-    <section class="about-container">
-      <div class="about-blur">
-        <p>
-          Hi I'm Plui or Pruuingoo or Plubinki or pruim whatever you wanna call me.  
-          I like to do random stuff and random projects.  
-          I also like gaming and stuff.
-        </p>
-      </div>
-    </section>
+  <!-- snow canvas -->
+  <canvas id="snow" aria-hidden="true"></canvas>
 
-    <!-- Social Links -->
-    <section class="links-container">
-      <div class="links-blur">
-        <div class="grid">
-          <button class="icon-btn" data-modal="discord"><svg><use href="icons.svg#discord"></use></svg></button>
-          <button class="icon-btn" data-modal="instagram"><svg><use href="icons.svg#instagram"></use></svg></button>
-          <button class="icon-btn" data-modal="instagram2"><svg><use href="icons.svg#instagram"></use></svg></button>
-          <button class="icon-btn" data-modal="youtube"><svg><use href="icons.svg#youtube"></use></svg></button>
-          <button class="icon-btn" data-modal="ytmusic"><svg><use href="icons.svg#youtube-music"></use></svg></button>
-          <button class="icon-btn" data-modal="spotify"><svg><use href="icons.svg#spotify"></use></svg></button>
-          <button class="icon-btn" data-modal="soundcloud"><svg><use href="icons.svg#soundcloud"></use></svg></button>
-          <button class="icon-btn" data-modal="anilist"><svg><use href="icons.svg#anilist"></use></svg></button>
-          <button class="icon-btn" data-modal="pinterest"><svg><use href="icons.svg#pinterest"></use></svg></button>
-          <button class="icon-btn" data-modal="x"><svg><use href="icons.svg#x"></use></svg></button>
-          <button class="icon-btn" data-modal="reddit"><svg><use href="icons.svg#reddit"></use></svg></button>
-          <button class="icon-btn" data-modal="twitch"><svg><use href="icons.svg#twitch"></use></svg></button>
-          <button class="icon-btn" data-modal="github"><svg><use href="icons.svg#github"></use></svg></button>
-          <button class="icon-btn" data-modal="tiktok"><svg><use href="icons.svg#tiktok"></use></svg></button>
-          <button class="icon-btn" data-modal="roblox1"><svg><use href="icons.svg#roblox"></use></svg></button>
-          <button class="icon-btn" data-modal="roblox2"><svg><use href="icons.svg#roblox"></use></svg></button>
-          <button class="icon-btn" data-modal="email"><svg><use href="icons.svg#gmail"></use></svg></button>
+  <main class="stage">
+    <!-- centered column -->
+    <div class="center-wrap">
+      <!-- Profile card (rounded square behind avatar + avatar) -->
+      <div class="card card-profile" id="cardProfile" data-tilt>
+        <div class="card-blur card-blur--profile"></div>
+        <div class="card-inner card-inner--profile">
+          <div class="avatar-wrap" id="avatarWrap" aria-hidden="false">
+            <img id="avatar" src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png" alt="Pruuingoo avatar">
+          </div>
+          <h1 class="display-name">Pruuingoo</h1>
         </div>
       </div>
-    </section>
+
+      <!-- About + Links row -->
+      <div class="row">
+        <!-- About card -->
+        <div class="card card-about">
+          <div class="card-blur"></div>
+          <div class="card-inner">
+            <h2>About Me</h2>
+            <p class="about-text">Hi I'm Plui or Pruuingoo or Plubinki or pruim — whatever you wanna call me. I like to do random stuff and tandem projects. I also like gaming and stuff.</p>
+          </div>
+        </div>
+
+        <!-- Links card -->
+        <div class="card card-links">
+          <div class="card-blur"></div>
+          <div class="card-inner">
+            <h2 class="links-title">Socials</h2>
+
+            <div class="links-grid" id="linksGrid">
+              <!-- Buttons are injected by script.js -->
+              <!-- Example markup (script will create all): -->
+              <!--
+              <button class="social-btn" data-key="discord" aria-label="Discord">
+                <img src="https://cdn.simpleicons.org/discord/ffffff" alt="">
+                <span class="tooltip">Discord</span>
+              </button>
+              -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <!-- Modals -->
-  <div id="modal" class="modal hidden">
-    <div class="modal-content">
-      <svg class="modal-icon"></svg>
-      <h2 id="modal-title"></h2>
-      <input type="text" id="modal-link" readonly/>
-      <div class="buttons">
-        <button id="open-btn">Open</button>
-        <button id="copy-btn">Copy</button>
+  <!-- Modal (single) -->
+  <div id="modalBackdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card" role="document" id="modalCard">
+      <div class="modal-top">
+        <img id="modalIcon" src="" alt="" class="modal-icon">
+        <div>
+          <h3 id="modalName"></h3>
+          <input id="modalLink" readonly>
+        </div>
       </div>
-      <button id="close-btn">Close</button>
+
+      <div class="modal-actions">
+        <button id="modalOpen" class="btn btn-primary">Open</button>
+        <button id="modalCopy" class="btn btn-secondary">Copy</button>
+      </div>
+
+      <button id="modalClose" class="btn btn-close">Close</button>
     </div>
   </div>
 
-  <!-- Choice modal -->
-  <div id="choice-modal" class="modal hidden">
-    <div class="modal-content">
-      <h2 id="choice-title"></h2>
-      <div class="buttons" id="choice-buttons"></div>
-      <button id="choice-cancel">Cancel</button>
+  <!-- Choice Modal (for Instagram/Roblox) -->
+  <div id="choiceBackdrop" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal-card small" role="document">
+      <h3 id="choiceTitle">Choose</h3>
+      <div id="choiceButtons" class="choice-buttons"></div>
+      <button id="choiceCancel" class="btn btn-close">Cancel</button>
     </div>
   </div>
 
