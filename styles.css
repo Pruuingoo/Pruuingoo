@@ -1,20 +1,15 @@
-/* -------------------------------------------
-  Pruuingoo Profile — styles.css (complete)
-  Fonts: Pacifico (name), Quicksand (body)
--------------------------------------------- */
+/* styles.css — rebuilt & fixed
+   Fonts: Pacifico (name), Quicksand (body)
+   White SimpleIcons + brand glow set by script
+*/
 
 :root{
-  --bg-zoom: 1.25;
-  --panel-max: 1120px;
   --accent-purple: #7c3aed;
   --accent-blue: #06b6d4;
-  --glass: rgba(255,255,255,0.04);
-  --glass-strong: rgba(255,255,255,0.06);
   --text: #e9f0fb;
-  --soft-white: rgba(255,255,255,0.92);
-  --card-radius: 20px;
-  --transition-fast: 180ms;
-  --transition-med: 340ms;
+  --glass: rgba(255,255,255,0.04);
+  --card-radius: 18px;
+  --max-width: 1120px;
 }
 
 /* Reset */
@@ -31,137 +26,119 @@ body{
 }
 
 /* Background layers */
-.bg-layer{position:fixed;inset:0;background-position:center;background-size:cover;transform-origin:center;z-index:0;pointer-events:none;will-change:transform}
+.bg-layer{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-position:center center;background-repeat:no-repeat;background-size:cover;
+  transform-origin:center;will-change:transform;
+}
+/* Landscape default & portrait hidden; JS/orientation toggles if needed */
 #bg-landscape{background-image:url('https://i.postimg.cc/90TSC2zV/837b06cad6840eafd3db75f8655d20ce.jpg');}
-#bg-portrait{background-image:url('https://i.postimg.cc/MTg4CH6d/481e502c01bbac451059193014ea67e9.jpg');display:none}
+#bg-portrait{background-image:url('https://i.postimg.cc/MTg4CH6d/481e502c01bbac451059193014ea67e9.jpg');display:none;}
+@media (orientation:portrait){ #bg-portrait{display:block} #bg-landscape{display:none} }
 
-/* Ensure the background always covers on mobile/portrait */
-@media (orientation:portrait){
-  #bg-portrait{display:block}
-  #bg-landscape{display:none}
-}
-@media (min-width:1200px){
-  #bg-landscape,#bg-portrait{background-size:cover}
-}
+/* Slight extra scale so edges won't show on any device */
+.bg-layer{transform:scale(1.12)}
 
-/* gradient overlay */
+/* overlay gradient */
 .gradient-overlay{
   position:fixed;inset:0;z-index:1;pointer-events:none;
   background: linear-gradient(180deg, rgba(124,58,237,0.18), rgba(6,182,212,0.12));
   mix-blend-mode:overlay;
 }
 
-/* snow canvas */
+/* snow canvas on top of background */
 #snow{position:fixed;inset:0;z-index:6;pointer-events:none}
 
 /* Stage */
-.stage{position:relative;z-index:10;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:48px 20px}
-.center-wrap{max-width:var(--panel-max);width:100%;display:flex;flex-direction:column;align-items:center;gap:22px}
+.stage{position:relative;z-index:10;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:36px 18px}
+.center-wrap{max-width:var(--max-width);width:100%;display:flex;flex-direction:column;align-items:center;gap:18px}
 
-/* cards grid/row */
-.row{display:flex;gap:20px;width:100%;align-items:flex-start;justify-content:center;flex-wrap:wrap}
-.card{position:relative;border-radius:var(--card-radius);overflow:hidden;min-width:280px;max-width:560px;background:transparent}
-.card-blur{position:absolute;inset:0;background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));backdrop-filter:blur(10px);opacity:0;transform:translateY(8px);transition:opacity var(--transition-med) ease, transform var(--transition-med) ease;box-shadow: 0 10px 30px rgba(2,6,23,0.55)}
-.card-inner{position:relative;padding:22px;z-index:2}
-
-/* Profile card (rounded square behind) */
-.card-profile{width:260px;height:340px;display:grid;place-items:center;background:transparent}
-.card-blur--profile{border-radius:28px;opacity:1;filter:blur(18px);background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));backdrop-filter:blur(22px);box-shadow:0 20px 50px rgba(2,6,23,0.6)}
-.card-inner--profile{display:flex;flex-direction:column;align-items:center;gap:12px;padding:28px}
-
-/* Avatar */
-.avatar-wrap{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;transform-origin:center;will-change:transform}
-.avatar-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;filter:grayscale(0);transition:transform 450ms cubic-bezier(.2,.9,.3,1), box-shadow 450ms}
-.avatar-wrap:focus{outline:none}
-
-/* Remove any border — only glow via shadow */
-.avatar-wrap img{
-  box-shadow: 0 18px 50px rgba(0,0,0,0.6), 0 0 40px 8px rgba(124,58,237,0.12);
+/* PROFILE */
+.card-profile{position:relative;width:260px;height:340px;display:flex;align-items:center;justify-content:center;z-index:12}
+.profile-square{
+  position:absolute;inset:auto;width:92%;height:88%;border-radius:24px;
+  background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  backdrop-filter:blur(18px);box-shadow:0 20px 50px rgba(2,6,23,0.6);
+  transform:translateY(6px); /* small offset so avatar visually sits*/
 }
+.profile-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px}
 
-/* Display name (soft script font) */
+/* Avatar — NO border, only glow via shadow */
+.avatar-wrap{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;overflow:hidden;will-change:transform;transition:transform 420ms cubic-bezier(.2,.9,.25,1);}
+.avatar-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;box-shadow:0 18px 40px rgba(0,0,0,0.6);transition:transform 420ms}
+
+/* Name (softer font) */
 .display-name{
-  margin:0;
-  font-family: "Pacifico", "Quicksand", cursive;
-  font-size:30px;
-  color:var(--soft-white);
-  text-shadow: 0 6px 28px rgba(124,58,237,0.12);
-  transform-origin:center;
-  opacity:0; transform:translateY(8px) scale(.98);
-  transition:opacity 420ms ease, transform 420ms cubic-bezier(.25,.9,.35,1);
+  font-family:"Pacifico", "Quicksand", cursive;
+  font-size:30px;margin:0;color:var(--text);
+  text-shadow:0 10px 30px rgba(124,58,237,0.08);
+  opacity:0; transform:translateY(6px) scale(.98);
+  transition:opacity 420ms ease, transform 420ms cubic-bezier(.2,.9,.25,1);
 }
 
-/* About & Links */
-.card-about{flex:1;min-width:280px;max-width:520px}
-.card-links{flex:1;min-width:280px;max-width:520px}
+/* ROW (About + Links) */
+.row{display:flex;gap:18px;width:100%;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.card{position:relative;border-radius:var(--card-radius);overflow:visible;min-width:280px;max-width:560px;z-index:11}
+.card-blur{position:absolute;inset:0;border-radius:var(--card-radius);background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(2,6,23,0.55);transform:translateY(10px);opacity:0.98}
+.card-inner{position:relative;padding:20px;z-index:2}
 
-/* Headings and text */
-.card h2{font-size:18px;margin:0 0 10px 0}
-.about-text{color:rgba(230,238,248,0.92);line-height:1.45}
+/* about and links used separate blur squares */
+.card-about{flex:1;min-width:300px}
+.about-square{border-radius:18px}
+.card-links{flex:1;min-width:300px}
+.links-square{border-radius:18px}
 
-/* Links grid */
+/* headings & text */
+.card h2{font-size:16px;margin:0 0 8px 0}
+.about-text{color:rgba(230,238,248,0.94);line-height:1.5}
+
+/* LINKS GRID: ensure icons stay inside the card square */
 .links-grid{
   display:grid;
-  grid-template-columns: repeat(auto-fit,minmax(64px,1fr));
-  gap:14px;
-  align-items:center;
-  justify-items:center;
-  margin-top:6px;
+  grid-template-columns:repeat(auto-fit,minmax(64px,1fr));
+  gap:12px;margin-top:8px;align-items:center;justify-items:center;padding:6px;
 }
 
-/* Social button */
+/* SOCIAL BUTTON */
 .social-btn{
-  width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:transparent;border:0;cursor:pointer;position:relative;
-  transform-origin:center;transition:transform 260ms cubic-bezier(.2,.9,.3,1), filter 260ms;
-  will-change:transform, filter;
+  width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:transparent;border:0;cursor:pointer;position:relative;transition:transform 240ms cubic-bezier(.2,.9,.25,1);
 }
-.social-btn img{width:36px;height:36px;display:block;filter:drop-shadow(0 0 0 rgba(0,0,0,0));transition:filter 360ms, transform 260ms}
-.social-btn .tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(6px);opacity:0;background:rgba(0,0,0,0.65);padding:6px 10px;border-radius:8px;font-size:13px;pointer-events:none;transition:opacity 160ms, transform 160ms}
+.social-btn img{width:36px;height:36px;display:block;filter:brightness(1);transition:transform 240ms, filter 360ms}
 
-/* Hover/focus state */
+/* tooltip */
+.social-btn .tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(6px);opacity:0;background:rgba(0,0,0,0.72);padding:6px 10px;border-radius:8px;font-size:13px;pointer-events:none;transition:opacity 160ms, transform 160ms}
+
+/* hover effects */
 .social-btn:hover{transform:translateY(-6px) scale(1.02)}
 .social-btn:hover img{transform:scale(1.08)}
 .social-btn:hover .tooltip{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* subtle floating/pulse glow animation for icons */
-@keyframes glowPulse {
-  0% { filter: drop-shadow(0 0 8px rgba(0,0,0,0)); }
-  50% { filter: drop-shadow(0 0 18px rgba(0,0,0,0)); }
-  100% { filter: drop-shadow(0 0 8px rgba(0,0,0,0)); }
-}
-
-/* modal styles */
-.modal-backdrop{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.65);backdrop-filter:blur(4px)}
+/* modal */
+.modal-backdrop{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.65);backdrop-filter:blur(4px)}
 .modal-backdrop.hidden{display:none}
-.modal-card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:14px;padding:18px;width:92%;max-width:420px;box-shadow:0 20px 60px rgba(2,6,23,0.6);transform:scale(.98);opacity:0;transition:opacity 260ms, transform 260ms}
+.modal-card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:12px;padding:16px;width:92%;max-width:420px;box-shadow:0 20px 60px rgba(2,6,23,0.6);opacity:0;transform:scale(.98);transition:opacity 260ms, transform 260ms}
 .modal-card.small{max-width:340px}
 .modal-top{display:flex;gap:12px;align-items:center}
-.modal-icon{width:56px;height:56px;border-radius:8px}
+.modal-icon{width:56px;height:56px;border-radius:8px;object-fit:contain}
 .modal-top h3{margin:0;font-size:18px}
-.modal-top input{width:100%;padding:8px;border-radius:10px;border:0;background:rgba(0,0,0,0.28);color:var(--text)}
+.modal-top input{width:100%;padding:8px;border-radius:10px;border:0;background:rgba(0,0,0,0.28);color:var(--text);margin-top:6px}
 .modal-actions{display:flex;gap:10px;margin-top:12px;justify-content:center}
 .btn{padding:8px 14px;border-radius:12px;border:0;cursor:pointer;font-weight:600}
 .btn-primary{background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple));color:#fff}
 .btn-secondary{background:linear-gradient(90deg,var(--accent-purple),var(--accent-blue));color:#fff}
-.btn-close{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);padding:7px 12px;margin-top:12px;display:block;margin-left:auto;margin-right:auto;border-radius:10px}
+.btn-close{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);padding:8px;border-radius:10px;display:block;margin:12px auto 0}
 
-/* entry animations (applies after JS adds .is-ready) */
-.is-ready .card-blur{opacity:1;transform:translateY(0)}
+/* state when page is ready */
 .is-ready .display-name{opacity:1;transform:translateY(0) scale(1)}
-.is-ready .card-inner{transform:none;opacity:1}
+.is-ready .card-blur{transform:translateY(0)}
 
-/* Icon brand glow classes inserted by JS with brand color variables */
-.social-glow{filter: drop-shadow(0 0 10px rgba(0,0,0,0)); transition: filter 400ms;}
-
-/* small responsiveness */
+/* responsive */
 @media (max-width:900px){
-  .row{flex-direction:column;align-items:center}
   .card-profile{width:220px;height:300px}
   .avatar-wrap{width:130px;height:130px}
+  .row{flex-direction:column;align-items:center}
+  .links-grid{grid-template-columns:repeat(auto-fit,minmax(56px,1fr))}
 }
 
-/* small tweak: ensure cards don't overflow their blur square */
+/* ensure inner content never overflows blur */
 .card-inner{overflow:hidden}
-
-/* Parallax/tilt subtle effect helper */
-[data-tilt]{transition:transform 400ms cubic-bezier(.2,.9,.3,1);will-change:transform}
