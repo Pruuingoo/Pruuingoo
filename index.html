@@ -3,109 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Plui</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Pruuingoo</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <!-- Background -->
-  <div id="parallax-bg"></div>
-  <div id="overlay"></div>
-  <div id="snowflakes"></div>
+  <div class="overlay"></div>
+  <canvas id="snow"></canvas>
 
-  <!-- Content -->
   <main>
-    <img src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png"
-         alt="Plui" class="avatar" />
-    <h1 class="name">Plui</h1>
-    <p class="subtitle">Tech explorer • Anime & creative projects</p>
-
-    <section class="about">
-      <p>Hey — I’m Plui. I like anime, games, Discord, and random tech. I tinker and create for fun.</p>
+    <!-- Profile Section -->
+    <section class="profile">
+      <img src="https://cdn.discordapp.com/avatars/1090665275986296904/087b86a86c11b7a59d235450c02a7c0c.png" 
+           alt="Profile Picture" class="avatar"/>
+      <h1 class="name">Pruuingoo</h1>
     </section>
 
-    <!-- Social Grid -->
-    <section class="socials">
-      <!-- Always visible socials -->
-      <button class="social-btn" data-modal="discord">
-        <img src="https://simpleicons.org/icons/discord.svg" alt="Discord"/>
-        <span class="tooltip">Discord</span>
-      </button>
+    <!-- About Section -->
+    <section class="about-container">
+      <div class="about-blur">
+        <p>
+          Hi I'm Plui or Pruuingoo or Plubinki or pruim whatever you wanna call me.  
+          I like to do random stuff and random projects.  
+          I also like gaming and stuff.
+        </p>
+      </div>
+    </section>
 
-      <button class="social-btn" data-modal="instagram-choice">
-        <img src="https://simpleicons.org/icons/instagram.svg" alt="Instagram"/>
-        <span class="tooltip">Instagram</span>
-      </button>
-
-      <button class="social-btn" data-modal="youtube">
-        <img src="https://simpleicons.org/icons/youtube.svg" alt="YouTube"/>
-        <span class="tooltip">YouTube</span>
-      </button>
-
-      <button class="social-btn" data-modal="anilist">
-        <img src="https://simpleicons.org/icons/anilist.svg" alt="AniList"/>
-        <span class="tooltip">AniList</span>
-      </button>
-
-      <button class="social-btn" data-modal="github">
-        <img src="https://simpleicons.org/icons/github.svg" alt="GitHub"/>
-        <span class="tooltip">GitHub</span>
-      </button>
-
-      <button class="social-btn" data-modal="tiktok">
-        <img src="https://simpleicons.org/icons/tiktok.svg" alt="TikTok"/>
-        <span class="tooltip">TikTok</span>
-      </button>
-
-      <button class="social-btn" data-modal="twitch">
-        <img src="https://simpleicons.org/icons/twitch.svg" alt="Twitch"/>
-        <span class="tooltip">Twitch</span>
-      </button>
-
-      <button class="social-btn" data-modal="pinterest">
-        <img src="https://simpleicons.org/icons/pinterest.svg" alt="Pinterest"/>
-        <span class="tooltip">Pinterest</span>
-      </button>
-
-      <button class="social-btn" data-modal="x">
-        <img src="https://simpleicons.org/icons/x.svg" alt="X"/>
-        <span class="tooltip">X</span>
-      </button>
-
-      <button class="social-btn" data-modal="roblox-choice">
-        <img src="https://simpleicons.org/icons/roblox.svg" alt="Roblox"/>
-        <span class="tooltip">Roblox</span>
-      </button>
-
-      <button class="social-btn" data-modal="spotify">
-        <img src="https://simpleicons.org/icons/spotify.svg" alt="Spotify"/>
-        <span class="tooltip">Spotify</span>
-      </button>
-
-      <button class="social-btn" data-modal="ytmusic">
-        <img src="https://simpleicons.org/icons/youtubemusic.svg" alt="YT Music"/>
-        <span class="tooltip">YT Music</span>
-      </button>
-
-      <button class="social-btn" data-modal="soundcloud">
-        <img src="https://simpleicons.org/icons/soundcloud.svg" alt="SoundCloud"/>
-        <span class="tooltip">SoundCloud</span>
-      </button>
-
-      <button class="social-btn" data-modal="email">
-        <img src="https://simpleicons.org/icons/gmail.svg" alt="Email"/>
-        <span class="tooltip">Email</span>
-      </button>
+    <!-- Social Links -->
+    <section class="links-container">
+      <div class="links-blur">
+        <div class="grid">
+          <button class="icon-btn" data-modal="discord"><svg><use href="icons.svg#discord"></use></svg></button>
+          <button class="icon-btn" data-modal="instagram"><svg><use href="icons.svg#instagram"></use></svg></button>
+          <button class="icon-btn" data-modal="instagram2"><svg><use href="icons.svg#instagram"></use></svg></button>
+          <button class="icon-btn" data-modal="youtube"><svg><use href="icons.svg#youtube"></use></svg></button>
+          <button class="icon-btn" data-modal="ytmusic"><svg><use href="icons.svg#youtube-music"></use></svg></button>
+          <button class="icon-btn" data-modal="spotify"><svg><use href="icons.svg#spotify"></use></svg></button>
+          <button class="icon-btn" data-modal="soundcloud"><svg><use href="icons.svg#soundcloud"></use></svg></button>
+          <button class="icon-btn" data-modal="anilist"><svg><use href="icons.svg#anilist"></use></svg></button>
+          <button class="icon-btn" data-modal="pinterest"><svg><use href="icons.svg#pinterest"></use></svg></button>
+          <button class="icon-btn" data-modal="x"><svg><use href="icons.svg#x"></use></svg></button>
+          <button class="icon-btn" data-modal="reddit"><svg><use href="icons.svg#reddit"></use></svg></button>
+          <button class="icon-btn" data-modal="twitch"><svg><use href="icons.svg#twitch"></use></svg></button>
+          <button class="icon-btn" data-modal="github"><svg><use href="icons.svg#github"></use></svg></button>
+          <button class="icon-btn" data-modal="tiktok"><svg><use href="icons.svg#tiktok"></use></svg></button>
+          <button class="icon-btn" data-modal="roblox1"><svg><use href="icons.svg#roblox"></use></svg></button>
+          <button class="icon-btn" data-modal="roblox2"><svg><use href="icons.svg#roblox"></use></svg></button>
+          <button class="icon-btn" data-modal="email"><svg><use href="icons.svg#gmail"></use></svg></button>
+        </div>
+      </div>
     </section>
   </main>
 
   <!-- Modals -->
-  <!-- Example: Discord -->
-  <div id="discord" class="modal">
+  <div id="modal" class="modal hidden">
     <div class="modal-content">
-      <img src="https://simpleicons.org/icons/discord.svg" class="modal-icon"/>
-      <h2>Discord</h2>
-      <input type="text" readonly value="https://discord.com/users/1090665275986296904"/>
-      <div class="modal-actions">
+      <svg class="modal-icon"></svg>
+      <h2 id="modal-title"></h2>
+      <input type="text" id="modal-link" readonly/>
+      <div class="buttons">
         <button id="open-btn">Open</button>
         <button id="copy-btn">Copy</button>
       </div>
@@ -113,22 +69,14 @@
     </div>
   </div>
 
-  <!-- Choice modal example: Instagram -->
-  <div id="instagram-choice" class="modal">
+  <!-- Choice modal -->
+  <div id="choice-modal" class="modal hidden">
     <div class="modal-content">
-      <img src="https://simpleicons.org/icons/instagram.svg" class="modal-icon"/>
-      <h2>Instagram</h2>
-      <div class="modal-actions">
-        <button id="choice-primary">Primary</button>
-        <button id="choice-secondary">Secondary</button>
-      </div>
+      <h2 id="choice-title"></h2>
+      <div class="buttons" id="choice-buttons"></div>
       <button id="choice-cancel">Cancel</button>
     </div>
   </div>
-
-  <!-- Add all other socials similarly... -->
-  <!-- (Due to space I won’t paste each modal here, but they all follow this same structure:
-        icon → h2 → input (link) → Open + Copy buttons → Close) -->
 
   <script src="script.js"></script>
 </body>
