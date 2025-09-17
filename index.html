@@ -12,15 +12,15 @@
   <meta name="color-scheme" content="dark">
 </head>
 <body>
-  <!-- Background layers (landscape default, portrait swapped via CSS) -->
+  <!-- Background layers -->
   <div id="bg-landscape" class="bg-layer" aria-hidden="true"></div>
   <div id="bg-portrait" class="bg-layer" aria-hidden="true"></div>
 
-  <!-- gradient overlay -->
-  <div class="gradient-overlay" aria-hidden="true"></div>
+  <!-- gradient overlay (parallax) -->
+  <div class="gradient-overlay parallax-layer" aria-hidden="true"></div>
 
-  <!-- snow canvas -->
-  <canvas id="snow" aria-hidden="true"></canvas>
+  <!-- snow canvas (parallax layer) -->
+  <canvas id="snow" class="parallax-layer" aria-hidden="true"></canvas>
 
   <main class="stage" id="stage">
     <div class="container">
@@ -80,7 +80,7 @@
   <!-- Choice modal: Instagram & Roblox choices -->
   <div id="choiceBackdrop" class="modal-backdrop hidden" aria-hidden="true">
     <div class="modal-card small" role="document">
-      <h3 id="choiceTitle">Choose</h3>
+      <h3 id="choiceTitle">Choose account</h3>
       <div id="choiceButtons" class="choice-buttons"></div>
       <button id="choiceCancel" class="btn btn-close">Cancel</button>
     </div>
@@ -88,4 +88,4 @@
 
   <script src="script.js"></script>
 </body>
-</html>
+              </html>
