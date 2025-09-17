@@ -1,79 +1,106 @@
-/* =================== script.js (rebuilt & synced) =================== */
-/* - Parallax (preserve scale)
-   - Soft blurry snow
-   - Socials (white icons from simpleicons CDN)
-   - Brand glow + gentle pulse per icon
-   - Modal & Choice modal (Instagram / Roblox)
-   - Profile tilt + page-ready animations
-*/
+/* =================== script.js — Final Synced & Fixed ===================
+   - Builds socials (white simpleicons)
+   - Brand glows (Roblox -> blue override)
+   - Icon glow pulse animations (dynamic keyframes)
+   - Parallax for overlays (gradient + snow) using rAF
+   - Soft slow blurry snow on canvas
+   - Profile tilt
+   - Modal + Choice modal (Primary/Secondary)
+   - Keyboard accessibility and defensive checks
+   ======================================================================== */
 
-/* -------------------- Configuration -------------------- */
-const BG_SCALE = 1.12;           // same scale used in CSS to avoid visible edges
-const PARALLAX_STRENGTH = 8;    // how strong background parallax is
-const SNOW_BASE_DENSITY = 140000; // larger value => fewer flakes
-
-/* -------------------- Social list (exact links you gave) -------------------- */
+/* -------------------- Configuration & Socials -------------------- */
 const SOCIALS = [
   { key: 'discord',   name: 'Discord',   url: 'https://discord.com/users/1090665275986296904', icon: 'discord',   color: '#5865F2' },
   { key: 'instagram', name: 'Instagram', url: ['https://instagram.com/pruuingoo/','https://instagram.com/plubinki/'], icon: 'instagram', color: '#E1306C' },
-  { key: 'roblox',    name: 'Roblox',    url: ['https://roblox.com/users/5279565619/profile','https://www.roblox.com/users/8808804903/profile'], icon: 'roblox', color: '#FF0000' },
-  { key: 'youtube',   name: 'YouTube',   url: 'https://youtube.com/@Pruuingoo', icon: 'youtube', color: '#FF0000' },
-  { key: 'ytmusic',   name: 'YT Music',  url: 'https://music.youtube.com/@nowepruim', icon: 'youtube', color: '#FF0000' },
+  { key: 'roblox',    name: 'Roblox',    url: ['https://roblox.com/users/5279565619/profile','https://www.roblox.com/users/8808804903/profile'], icon: 'roblox', color: '#00A2FF' }, // forced to blue here
+  { key: 'youtube',   name: 'YouTube',   url: 'https://youtube.com/@Pruuingoo', icon: 'youtube',   color: '#FF0000' },
+  { key: 'ytmusic',   name: 'YT Music',  url: 'https://music.youtube.com/@nowepruim', icon: 'youtube',  color: '#FF0000' },
   { key: 'spotify',   name: 'Spotify',   url: 'https://open.spotify.com/user/31pjdkh6gumg7gsnud2zxgzfaswi', icon: 'spotify', color: '#1DB954' },
-  { key: 'soundcloud',name: 'SoundCloud',url: 'https://soundcloud.com/pruuingoo', icon: 'soundcloud', color: '#FF5500' },
-  { key: 'anilist',   name: 'AniList',   url: 'https://anilist.co/user/pruuingoo', icon: 'anilist', color: '#2E51A2' },
+  { key: 'soundcloud',name: 'SoundCloud',url: 'https://soundcloud.com/pruuingoo', icon: 'soundcloud',color: '#FF5500' },
+  { key: 'anilist',   name: 'AniList',   url: 'https://anilist.co/user/pruuingoo', icon: 'anilist',   color: '#2E51A2' },
   { key: 'pinterest', name: 'Pinterest', url: 'https://pinterest.com/OttrxZPqu', icon: 'pinterest', color: '#E60023' },
   { key: 'x',         name: 'X',         url: 'https://x.com/Pruuingoo', icon: 'x', color: '#000000' },
   { key: 'reddit',    name: 'Reddit',    url: 'https://reddit.com/user/Tasty-Replacement310/', icon: 'reddit', color: '#FF4500' },
   { key: 'twitch',    name: 'Twitch',    url: 'https://twitch.tv/pruuingoo', icon: 'twitch', color: '#6441A4' },
-  { key: 'github',    name: 'GitHub',    url: 'https://tiktok.com/@pruuingoo', icon: 'github', color: '#181717' },
+  { key: 'github',    name: 'GitHub',    url: 'https://tiktok.com/@pruuingoo', icon: 'github', color: '#181717' }, // kept your URL as given
   { key: 'tiktok',    name: 'TikTok',    url: 'https://tiktok.com/@pruuingoo', icon: 'tiktok', color: '#000000' },
   { key: 'email',     name: 'Email',     url: 'mailto:pruuingoo@gmail.com', icon: 'gmail', color: '#D93025' }
 ];
 
-/* -------------------- Helpers -------------------- */
-const iconUrl = slug => `https://cdn.simpleicons.org/${slug}/ffffff`; // white icon
+const ICON_BASE = 'https://cdn.simpleicons.org'; // use like `${ICON_BASE}/${slug}/ffffff`
+const BG_BASE_SCALE = 1.12; // preserve scale used in CSS
+const PARALLAX_STRENGTH = 8; // parallax amplitude
+const SNOW_DENSITY_DIV = 140000; // higher -> fewer flakes
 
-function hexToRgba(hex, alpha = 1){
-  if(!hex) hex = '#ffffff';
-  hex = hex.replace('#','');
-  if(hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
-  const num = parseInt(hex,16);
-  const r = (num >> 16) & 255;
-  const g = (num >> 8) & 255;
-  const b = num & 255;
-  return `rgba(${r},${g},${b},${alpha})`;
+/* -------------------- Utilities -------------------- */
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+const safe = (fn) => { try { fn(); } catch(e) { /* ignore */ } };
+
+function iconUrl(slug){
+  if(!slug) return '';
+  return `${ICON_BASE}/${slug}/ffffff`;
 }
 
-/* append a dynamic style tag for per-icon animation keyframes */
-const dynamicStyle = document.createElement('style');
-dynamicStyle.id = 'social-dynamic-style';
-document.head.appendChild(dynamicStyle);
+function hexToRgba(hex, a = 1){
+  if(!hex) hex = '#ffffff';
+  hex = hex.replace('#','');
+  if(hex.length === 3) hex = hex.split('').map(ch=>ch+ch).join('');
+  const n = parseInt(hex,16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  return `rgba(${r},${g},${b},${a})`;
+}
 
-/* safe query helpers */
-const $ = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
+/* dynamic style tag for per-icon keyframes */
+const dynStyle = document.createElement('style');
+dynStyle.id = 'dynamic-icon-styles';
+document.head.appendChild(dynStyle);
 
-/* -------------------- Parallax (bg layers) -------------------- */
+/* -------------------- Parallax (overlay layers) -------------------- */
+/* Move only overlays: gradient overlay and snow canvas.
+   Preserve base scale to avoid background edges showing. Use rAF for smoothness. */
 (function initParallax(){
-  const bgLayers = $$('.bg-layer');
-  if(!bgLayers.length) return;
-  const onPointer = (ev) => {
-    const cx = window.innerWidth/2;
-    const cy = window.innerHeight/2;
-    const dx = (ev.clientX - cx) / cx;
-    const dy = (ev.clientY - cy) / cy;
-    bgLayers.forEach((el, i) => {
-      const depth = (i + 1) * (PARALLAX_STRENGTH);
-      // preserve base scale and apply translation
-      el.style.transform = `scale(${BG_SCALE}) translate(${(dx * PARALLAX_STRENGTH)/depth}px, ${(dy * PARALLAX_STRENGTH)/depth}px)`;
+  const overlays = [];
+  const gradient = $('.gradient-overlay');
+  const snowCanvas = $('#snow');
+  if(gradient) overlays.push(gradient);
+  if(snowCanvas) overlays.push(snowCanvas);
+
+  if(overlays.length === 0) return;
+
+  let targetX = 0, targetY = 0;
+  let curX = 0, curY = 0;
+  const ease = 0.12;
+
+  function onPointerMove(e){
+    const dx = (e.clientX / window.innerWidth - 0.5);
+    const dy = (e.clientY / window.innerHeight - 0.5);
+    targetX = dx * PARALLAX_STRENGTH;
+    targetY = dy * PARALLAX_STRENGTH;
+  }
+
+  function tick(){
+    curX += (targetX - curX) * ease;
+    curY += (targetY - curY) * ease;
+    overlays.forEach((el, i) => {
+      // depth factor: further layers move less
+      const depth = (i+1) * 8;
+      const tx = (curX / depth);
+      const ty = (curY / depth);
+      el.style.transform = `scale(${BG_BASE_SCALE}) translate3d(${tx}px, ${ty}px, 0)`;
     });
-  };
-  // pointermove for desktop & mobile pointer events
-  window.addEventListener('pointermove', onPointer, { passive: true });
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('pointermove', onPointerMove, { passive:true });
+  // also respond to touchmove for mobile (pointermove works for touch too)
+  tick();
 })();
 
-/* -------------------- Snow Canvas -------------------- */
+/* -------------------- Snow canvas (soft, slow, blurry) -------------------- */
 (function initSnow(){
   const canvas = $('#snow');
   if(!canvas) return;
@@ -82,18 +109,18 @@ const $$ = sel => Array.from(document.querySelectorAll(sel));
   let H = canvas.height = window.innerHeight;
   let flakes = [];
 
-  function reset(){
+  function rebuild(){
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
+    const count = Math.max(30, Math.round((W * H) / SNOW_DENSITY_DIV));
     flakes = [];
-    const count = Math.max(30, Math.round((W * H) / SNOW_BASE_DENSITY));
     for(let i=0;i<count;i++){
       flakes.push({
         x: Math.random()*W,
         y: Math.random()*H,
-        r: 0.9 + Math.random()*2.6,   // radius
-        vx: (Math.random()-0.5) * 0.24,
-        vy: 0.06 + Math.random()*0.32,
+        r: 0.9 + Math.random()*2.6,
+        vx: (Math.random()-0.5) * 0.2,
+        vy: 0.05 + Math.random()*0.28,
         a: 0.18 + Math.random()*0.66,
         phase: Math.random()*Math.PI*2
       });
@@ -106,16 +133,18 @@ const $$ = sel => Array.from(document.querySelectorAll(sel));
     for(const f of flakes){
       ctx.beginPath();
       ctx.fillStyle = `rgba(255,255,255,${f.a})`;
-      ctx.shadowColor = 'rgba(255,255,255,0.95)';
+      ctx.shadowColor = 'rgba(255,255,255,0.92)';
       ctx.shadowBlur = Math.min(14, f.r * 3.2);
       ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
       ctx.fill();
-      // motion
-      f.phase += 0.0025;
+
+      // gentle movement
+      f.phase += 0.0028;
       f.x += f.vx + Math.sin(f.phase) * 0.12;
       f.y += f.vy;
-      if(f.y > H + 12){
-        f.y = -10 - Math.random()*30;
+
+      if(f.y > H + 10){
+        f.y = -8 - Math.random()*30;
         f.x = Math.random()*W;
       }
       if(f.x > W + 20) f.x = -20;
@@ -125,17 +154,18 @@ const $$ = sel => Array.from(document.querySelectorAll(sel));
     requestAnimationFrame(draw);
   }
 
-  window.addEventListener('resize', () => { reset(); });
-  reset(); draw();
+  window.addEventListener('resize', () => { rebuild(); });
+  rebuild();
+  draw();
 })();
 
-/* -------------------- Build Social Grid -------------------- */
+/* -------------------- Build social grid & icon animations -------------------- */
 (function buildSocials(){
-  const linksGrid = $('#linksGrid');
-  if(!linksGrid) return;
+  const grid = $('#linksGrid');
+  if(!grid) return;
 
-  // clear existing content
-  linksGrid.innerHTML = '';
+  // clear
+  grid.innerHTML = '';
 
   SOCIALS.forEach(s => {
     const btn = document.createElement('button');
@@ -145,6 +175,7 @@ const $$ = sel => Array.from(document.querySelectorAll(sel));
     btn.setAttribute('aria-label', s.name);
     btn.title = s.name;
 
+    // white icon
     const img = document.createElement('img');
     img.src = iconUrl(s.icon);
     img.alt = s.name;
@@ -152,168 +183,251 @@ const $$ = sel => Array.from(document.querySelectorAll(sel));
     img.decoding = 'async';
     img.style.width = '36px';
     img.style.height = '36px';
+    img.style.display = 'block';
 
+    // tooltip (CSS handles visibility)
     const tip = document.createElement('span');
     tip.className = 'tooltip';
-    tip.innerText = s.name;
+    tip.textContent = s.name;
 
     btn.appendChild(img);
     btn.appendChild(tip);
-    linksGrid.appendChild(btn);
+    grid.appendChild(btn);
 
-    // create per-icon pulse keyframes (appended to dynamic style)
-    const rgba = hexToRgba(s.color || '#7c3aed', 0.92);
-    const keyName = `glowPulse_${s.key.replace(/\s+/g,'_')}`;
-    const anim = `
+    // brand glow & per-icon pulse
+    // Special case: if key is 'roblox', we forced color to blue in SOCIALS above.
+    const color = (s.color || '#7c3aed');
+    const rgba = hexToRgba(color, 0.88);
+    const keyName = `pulse_${s.key.replace(/\s+/g,'_')}`;
+    const kf = `
 @keyframes ${keyName} {
   0% { filter: drop-shadow(0 0 8px ${rgba}); transform: translateZ(0) scale(1); }
-  50% { filter: drop-shadow(0 0 20px ${rgba}); transform: translateY(-3px) scale(1.03); }
+  50% { filter: drop-shadow(0 0 20px ${rgba}); transform: translateY(-3px) scale(1.04); }
   100% { filter: drop-shadow(0 0 8px ${rgba}); transform: translateZ(0) scale(1); }
 }
 `;
-    dynamicStyle.appendChild(document.createTextNode(anim));
-    img.style.filter = `drop-shadow(0 0 10px ${hexToRgba(s.color,0.82)})`;
-    img.style.animation = `${keyName} ${3.2 + Math.random()*1.6}s ease-in-out ${Math.random()*1.2}s infinite`;
+    try{
+      dynStyle.appendChild(document.createTextNode(kf));
+    }catch(e){
+      // fallback: insertRule
+      try{ dynStyle.sheet.insertRule(kf, dynStyle.sheet.cssRules.length); }catch(err){}
+    }
 
-    // click: open modal or choice modal
+    img.style.filter = `drop-shadow(0 0 10px ${hexToRgba(color,0.82)})`;
+    img.style.animation = `${keyName} ${3 + Math.random()*1.6}s ease-in-out ${Math.random()*1.1}s infinite`;
+
+    // clicks: open modal or choice modal
     btn.addEventListener('click', (ev) => {
       ev.stopPropagation();
       if(Array.isArray(s.url)){
-        // Expect [primary, secondary]
+        // choice modal (Instagram, Roblox)
         openChoiceModal(s.name, s.url, s.icon);
       } else {
-        openModal(s.name, s.url, s.icon);
+        openModal(s.name, s.url, s.icon, color);
       }
     });
-    // keyboard enter support
-    btn.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); } });
+
+    // keyboard accessibility: Enter / Space
+    btn.addEventListener('keydown', (ev) => {
+      if(ev.key === 'Enter' || ev.key === ' '){
+        ev.preventDefault();
+        btn.click();
+      }
+    });
   });
 })();
 
-/* -------------------- Modal (single) -------------------- */
-(function modalLogic(){
-  const modalBackdrop = $('#modalBackdrop');
-  const modalCard = $('#modalCard');
-  const modalIcon = $('#modalIcon');
-  const modalName = $('#modalName');
-  const modalLink = $('#modalLink');
-  const modalOpen = $('#modalOpen');
-  const modalCopy = $('#modalCopy');
-  const modalClose = $('#modalClose');
+/* -------------------- Modal (main) -------------------- */
+/*
+  Expected DOM:
+  - #modalBackdrop (backdrop element)
+  - #modalCard (container)
+  - #modalIcon (img)
+  - #modalName (h3)
+  - #modalLink (input)
+  - #modalOpen (button)
+  - #modalCopy (button)
+  - #modalClose (button)
+*/
+(function modalMain(){
+  const backdrop = $('#modalBackdrop');
+  const card = $('#modalCard');
+  const iconEl = $('#modalIcon');
+  const nameEl = $('#modalName');
+  const linkEl = $('#modalLink');
+  const openBtn = $('#modalOpen');
+  const copyBtn = $('#modalCopy');
+  const closeBtn = $('#modalClose');
+  if(!backdrop || !card) {
+    // nothing to do
+    window.openModal = () => {};
+    window.closeModal = () => {};
+    return;
+  }
 
-  if(!modalBackdrop || !modalCard) return;
+  // ensure starting animation state
+  card.style.transition = 'transform 240ms cubic-bezier(.2,.9,.25,1), opacity 220ms ease';
+  card.style.transform = 'scale(.98)';
+  card.style.opacity = '0';
 
-  function show(name, url, iconSlug){
-    modalBackdrop.classList.remove('hidden');
-    modalBackdrop.setAttribute('aria-hidden','false');
-    if(modalIcon) modalIcon.src = iconUrl(iconSlug || 'link');
-    if(modalName) modalName.textContent = name;
-    if(modalLink) modalLink.value = url;
-    // animate
-    modalCard.style.opacity = '1';
-    modalCard.style.transform = 'scale(1)';
-    // set actions
-    if(modalOpen) modalOpen.onclick = ()=> window.open(url, '_blank');
-    if(modalCopy) modalCopy.onclick = async ()=>{
-      try{ await navigator.clipboard.writeText(url); modalCopy.innerText = 'Copied'; setTimeout(()=> modalCopy.innerText = 'Copy',1100); }catch(e){}
+  function show(name, url, iconSlug, color){
+    backdrop.classList.remove('hidden');
+    backdrop.setAttribute('aria-hidden','false');
+    if(iconEl) iconEl.src = iconUrl(iconSlug || 'link');
+    if(nameEl) nameEl.textContent = name;
+    if(linkEl) linkEl.value = url;
+
+    // animate in
+    requestAnimationFrame(()=> {
+      card.style.transform = 'scale(1)';
+      card.style.opacity = '1';
+    });
+
+    // wire buttons
+    if(openBtn) openBtn.onclick = ()=> window.open(url, '_blank');
+    if(copyBtn) copyBtn.onclick = async ()=> {
+      try{
+        await navigator.clipboard.writeText(url);
+        const prev = copyBtn.textContent;
+        copyBtn.textContent = 'Copied';
+        setTimeout(()=> { copyBtn.textContent = prev; }, 1200);
+      }catch(e){}
     };
   }
 
   function hide(){
-    modalCard.style.opacity = '0';
-    modalCard.style.transform = 'scale(.98)';
-    setTimeout(()=>{
-      modalBackdrop.classList.add('hidden');
-      modalBackdrop.setAttribute('aria-hidden','true');
-    },220);
-    // clear handlers
-    if(modalOpen) modalOpen.onclick = null;
+    // animate out
+    card.style.transform = 'scale(.98)';
+    card.style.opacity = '0';
+    setTimeout(()=> {
+      backdrop.classList.add('hidden');
+      backdrop.setAttribute('aria-hidden','true');
+      // cleanup actions
+      if(openBtn) openBtn.onclick = null;
+      if(copyBtn) copyBtn.onclick = null;
+    }, 260);
   }
 
-  // expose to global scope (used by other functions)
+  // close handlers
+  if(closeBtn) closeBtn.addEventListener('click', hide);
+  backdrop.addEventListener('click', (e)=> { if(e.target === backdrop) hide(); });
+
+  // expose to global so other functions can call
   window.openModal = show;
   window.closeModal = hide;
-
-  // wire up close interactions
-  if(modalClose) modalClose.addEventListener('click', hide);
-  if(modalBackdrop) modalBackdrop.addEventListener('click', (e)=> { if(e.target === modalBackdrop) hide(); });
 })();
 
-/* -------------------- Choice Modal (Primary/Secondary) -------------------- */
-(function choiceModalLogic(){
-  const choiceBackdrop = $('#choiceBackdrop');
-  const choiceTitle = $('#choiceTitle');
-  const choiceButtons = $('#choiceButtons');
-  const choiceCancel = $('#choiceCancel');
+/* -------------------- Choice Modal (Instagram / Roblox) -------------------- */
+/*
+  Expected DOM:
+  - #choiceBackdrop (backdrop)
+  - #choiceTitle (title element)
+  - #choiceButtons (container)
+  - #choiceCancel (cancel button)
+*/
+(function choiceModal(){
+  const backdrop = $('#choiceBackdrop');
+  const titleEl = $('#choiceTitle');
+  const buttonsEl = $('#choiceButtons');
+  const cancelBtn = $('#choiceCancel');
 
-  if(!choiceBackdrop || !choiceButtons) return;
-
-  function openChoice(title, urls, iconSlug){
-    // urls: array [primary, secondary]
-    choiceBackdrop.classList.remove('hidden');
-    choiceBackdrop.setAttribute('aria-hidden','false');
-    if(choiceTitle) choiceTitle.textContent = title;
-    choiceButtons.innerHTML = '';
-    // Primary
-    const primary = document.createElement('button');
-    primary.className = 'btn btn-open';
-    primary.innerText = 'Primary';
-    primary.addEventListener('click', ()=> {
-      window.openModal(`${title} — Primary`, urls[0], iconSlug);
-      choiceBackdrop.classList.add('hidden');
-    });
-    // Secondary
-    const secondary = document.createElement('button');
-    secondary.className = 'btn btn-copy';
-    secondary.innerText = 'Secondary';
-    secondary.addEventListener('click', ()=> {
-      window.openModal(`${title} — Secondary`, urls[1] || urls[0], iconSlug);
-      choiceBackdrop.classList.add('hidden');
-    });
-    choiceButtons.appendChild(primary);
-    choiceButtons.appendChild(secondary);
+  if(!backdrop || !buttonsEl) {
+    window.openChoiceModal = () => {};
+    return;
   }
 
-  choiceCancel && choiceCancel.addEventListener('click', ()=> { choiceBackdrop.classList.add('hidden'); });
-  choiceBackdrop && choiceBackdrop.addEventListener('click', (e)=> { if(e.target === choiceBackdrop) choiceBackdrop.classList.add('hidden'); });
+  function openChoice(title, urls, iconSlug){
+    // urls array length >=1; [primary, secondary]
+    backdrop.classList.remove('hidden');
+    backdrop.setAttribute('aria-hidden','false');
+    if(titleEl) titleEl.textContent = title;
+    buttonsEl.innerHTML = '';
 
-  // expose
+    // Primary button
+    const primary = document.createElement('button');
+    primary.className = 'btn btn-open';
+    primary.type = 'button';
+    primary.innerText = 'Primary';
+    primary.addEventListener('click', ()=>{
+      // open main modal with primary url
+      window.openModal(`${title} — Primary`, urls[0], iconSlug, null);
+      backdrop.classList.add('hidden');
+    });
+
+    // Secondary button
+    const secondary = document.createElement('button');
+    secondary.className = 'btn btn-copy';
+    secondary.type = 'button';
+    secondary.innerText = 'Secondary';
+    secondary.addEventListener('click', ()=>{
+      const url = urls[1] || urls[0];
+      window.openModal(`${title} — Secondary`, url, iconSlug, null);
+      backdrop.classList.add('hidden');
+    });
+
+    buttonsEl.appendChild(primary);
+    buttonsEl.appendChild(secondary);
+  }
+
+  cancelBtn && cancelBtn.addEventListener('click', ()=> {
+    backdrop.classList.add('hidden');
+  });
+
+  backdrop.addEventListener('click', (e)=> { if(e.target === backdrop) backdrop.classList.add('hidden'); });
+
   window.openChoiceModal = openChoice;
 })();
 
-/* -------------------- Profile tilt & page animations -------------------- */
-(function profileTiltAndReady(){
-  const profileInner = $('#profileInner');
+/* -------------------- Profile tilt & page-ready animations -------------------- */
+(function profileTilt(){
+  const profileInner = $('#profileInner'); // the element that tilts
   const avatarWrap = $('#avatarWrap');
   const nameEl = $('.name');
 
-  // entrance state
-  window.addEventListener('load', ()=>{
+  // entrance tweak
+  window.addEventListener('load', ()=> {
     document.documentElement.classList.add('is-ready');
-    if(avatarWrap) { avatarWrap.style.transform = 'scale(.96)'; setTimeout(()=> avatarWrap.style.transform = 'scale(1)', 200); }
-    if(nameEl) { nameEl.style.opacity = '1'; nameEl.style.transform = 'translateY(0) scale(1)'; }
+    if(avatarWrap) {
+      avatarWrap.style.transition = 'transform 320ms cubic-bezier(.2,.9,.25,1)';
+      avatarWrap.style.transform = 'scale(.96)';
+      setTimeout(()=> avatarWrap.style.transform = 'scale(1)', 220);
+    }
+    if(nameEl) {
+      nameEl.style.transition = 'opacity 420ms ease, transform 420ms cubic-bezier(.2,.9,.25,1)';
+      nameEl.style.opacity = '1';
+      nameEl.style.transform = 'translateY(0) scale(1)';
+    }
   });
 
-  // tilt
-  if(profileInner){
-    profileInner.addEventListener('mousemove', (e)=>{
-      const rect = profileInner.getBoundingClientRect();
-      const dx = (e.clientX - (rect.left + rect.width/2)) / rect.width;
-      const dy = (e.clientY - (rect.top + rect.height/2)) / rect.height;
-      const rotX = (-dy * 6).toFixed(2);
-      const rotY = (dx * 6).toFixed(2);
-      profileInner.style.transform = `perspective(700px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(6px)`;
-    });
-    profileInner.addEventListener('mouseleave', ()=> profileInner.style.transform = 'none');
-  }
+  if(!profileInner) return;
+
+  profileInner.addEventListener('mousemove', (e) => {
+    const rect = profileInner.getBoundingClientRect();
+    const dx = (e.clientX - (rect.left + rect.width/2)) / rect.width;
+    const dy = (e.clientY - (rect.top + rect.height/2)) / rect.height;
+    const rotX = (-dy * 6).toFixed(2);
+    const rotY = (dx * 6).toFixed(2);
+    profileInner.style.transform = `perspective(700px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(6px)`;
+  });
+
+  profileInner.addEventListener('mouseleave', ()=> {
+    profileInner.style.transform = 'none';
+  });
 })();
 
-/* -------------------- Misc: ESC closes modals -------------------- */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Escape'){
-    try{ window.closeModal && window.closeModal(); }catch(e){}
-    const cb = $('#choiceBackdrop'); if(cb) cb.classList.add('hidden');
-  }
-});
+/* -------------------- Accessibility & misc -------------------- */
+(function misc(){
+  // Escape closes modals
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape'){
+      safe(()=> window.closeModal());
+      const cb = $('#choiceBackdrop');
+      if(cb) cb.classList.add('hidden');
+    }
+  });
 
-/* =================== END script.js =================== */
+  // Prevent background zoom on scroll: ensure overlays remain scaled only once (CSS should handle it)
+  // (No JS scroll-zoom applied here)
+})();
+
+/* =================== end of script.js =================== */
